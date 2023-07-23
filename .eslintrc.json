@@ -8,7 +8,7 @@
     "import/newline-after-import": "error",
     "import/no-duplicates": "error",
     "prettier/prettier": ["error", { "printWidth": 120 }],
-    "indent": ["error", 2],
+    "indent": "off",
     "quotes": ["error", "double"],
     "semi": ["error", "always"]
   }
