@@ -1,11 +1,11 @@
-import { StoreModal } from "@/components/modals/store-modal";
+import { Toaster } from "react-hot-toast";
 
 import { BaseClientProvider } from "./base-client-provider";
 
-export const ModalProvider = () => {
+export const ToastProvider = () => {
   return (
     <BaseClientProvider>
-      <StoreModal />
+      <Toaster />
     </BaseClientProvider>
   );
 };
