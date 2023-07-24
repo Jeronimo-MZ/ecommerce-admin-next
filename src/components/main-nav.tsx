@@ -13,6 +13,11 @@ export const MainNav = ({ className, ...props }: HTMLAttributes<HTMLElement>) =>
 
   const routes = [
     {
+      href: `/${params.storeId}`,
+      label: "Overview",
+      active: `/${params.storeId}` === pathname,
+    },
+    {
       href: `/${params.storeId}/settings`,
       label: "Settings",
       active: `/${params.storeId}/settings` === pathname,

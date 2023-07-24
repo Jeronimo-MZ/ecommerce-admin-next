@@ -11,11 +11,13 @@ import { toast } from "react-hot-toast";
 import { z } from "zod";
 
 import { AlertModal } from "@/components/modals/alert-modal";
+import { ApiAlert } from "@/components/ui/api-alert";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Heading } from "@/components/ui/heading";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { useOrigin } from "@/hooks/use-origin";
 import { api } from "@/lib/axios";
 import { handleAxiosError } from "@/utils/handle-axios-error";
 
@@ -29,6 +31,7 @@ type SettingsFormData = z.infer<typeof settingsFormSchema>;
 export const SettingsForm = ({ initialData }: SettingsForm) => {
   const params = useParams();
   const router = useRouter();
+  const origin = useOrigin();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const form = useForm<SettingsFormData>({ resolver: zodResolver(settingsFormSchema), defaultValues: initialData });
@@ -99,6 +102,7 @@ export const SettingsForm = ({ initialData }: SettingsForm) => {
           <Button loading={form.formState.isSubmitting}>Save Changes</Button>
         </form>
       </Form.Provider>
+      <ApiAlert title="NEXT_PUBLIC_API_URL" description={`${origin}/api/${params.storeId}`} variant="public" />
     </>
   );
 };
