@@ -32,6 +32,7 @@ export const StoreModal = () => {
     try {
       const { data } = await api.post<{ storeId: string }>("/api/stores", { name });
       router.push(`/${data.storeId}`);
+      storeModal.onClose();
     } catch (error) {
       if (isAxiosError(error)) {
         toast.error(error.response?.data);

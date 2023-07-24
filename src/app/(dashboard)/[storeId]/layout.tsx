@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 
+import { Navbar } from "@/components/navbar";
 import { prisma } from "@/lib/prisma";
 
 type DashboardLayoutProps = {
@@ -21,7 +22,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 
   return (
     <>
-      <div>this will be a navbar</div>
+      <Navbar />
       {children}
     </>
   );
