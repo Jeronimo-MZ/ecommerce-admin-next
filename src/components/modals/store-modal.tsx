@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { useStoreModal } from "@/hooks/use-store-modal";
 import { api } from "@/lib/axios";
+import { handleAxiosError } from "@/utils/handle-axios-error";
 
 import { Button } from "../ui/button";
 
@@ -34,11 +35,8 @@ export const StoreModal = () => {
       router.push(`/${data.storeId}`);
       storeModal.onClose();
     } catch (error) {
-      if (isAxiosError(error)) {
-        toast.error(error.response?.data);
-      } else {
-        throw error;
-      }
+      const errorMessage = handleAxiosError(error);
+      toast.error(errorMessage);
     }
   };
 

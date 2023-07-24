@@ -11,7 +11,6 @@ export const Navbar = async () => {
 
   if (!userId) redirect("/");
   const stores = await prisma.store.findMany({ where: { userId } });
-  console.log(stores);
   return (
     <div className="border-b">
       <div className="flex h-16 items-center px-4">
