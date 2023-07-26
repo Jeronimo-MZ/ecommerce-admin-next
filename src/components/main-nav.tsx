@@ -1,9 +1,8 @@
 "use client";
 
-import { auth } from "@clerk/nextjs";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
-import { HTMLAttributes } from "react";
+import { HTMLAttributes, useCallback } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -15,15 +14,18 @@ export const MainNav = ({ className, ...props }: HTMLAttributes<HTMLElement>) =>
     {
       href: `/${params.storeId}`,
       label: "Overview",
-      active: `/${params.storeId}` === pathname,
+    },
+    {
+      href: `/${params.storeId}/billboards`,
+      label: "Billboards",
     },
     {
       href: `/${params.storeId}/settings`,
       label: "Settings",
-      active: `/${params.storeId}/settings` === pathname,
     },
   ];
 
+  const isActiveRoute = useCallback((route: { href: string }) => route.href === pathname, [pathname]);
   return (
     <nav className={cn("flex items-center space-x-4 lg:space-x-6 ", className)} {...props}>
       {routes.map(route => (
@@ -32,7 +34,7 @@ export const MainNav = ({ className, ...props }: HTMLAttributes<HTMLElement>) =>
           key={`${route.label}_${route.href}`}
           className={cn(
             "text-sm font-medium transition-colors hover:text-primary",
-            route.active ? "text-black dark:text-white" : "text-muted-foreground",
+            isActiveRoute(route) ? "text-black dark:text-white" : "text-muted-foreground",
           )}
         >
           {route.label}
