@@ -20,6 +20,10 @@ export const MainNav = ({ className, ...props }: HTMLAttributes<HTMLElement>) =>
       label: "Billboards",
     },
     {
+      href: `/${params.storeId}/categories`,
+      label: "Categories",
+    },
+    {
       href: `/${params.storeId}/settings`,
       label: "Settings",
     },

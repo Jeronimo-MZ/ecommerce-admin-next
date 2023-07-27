@@ -4,6 +4,7 @@ export const handleAxiosError = (error: unknown, defaultErrorMessage = "Somethin
   if (isAxiosError(error)) {
     return error.response?.data || defaultErrorMessage;
   } else {
+    console.error(error);
     return defaultErrorMessage;
   }
 };

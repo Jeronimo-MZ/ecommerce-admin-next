@@ -1,5 +1,5 @@
 import { Billboard } from "@prisma/client";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
 
@@ -16,8 +16,9 @@ const BillboardPage = async ({ params }: BillboardPageProps) => {
   let billboardData: Billboard | null = null;
   if (params.billboardId.toLocaleLowerCase() !== "new") {
     const billboardResult = await prisma.billboard.findUnique({ where: { id: params.billboardId } });
-    if (!billboardResult) notFound();
-    else {
+    if (!billboardResult) {
+      notFound();
+    } else {
       billboardData = { ...billboardResult };
     }
   }

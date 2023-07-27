@@ -53,11 +53,12 @@ export const BillboardForm = ({ initialData }: BillboardFormProps) => {
     try {
       if (initialData) {
         await api.patch(`/api/${params.storeId}/billboards/${params.billboardId}`, { imageUrl, label });
+        router.refresh();
       } else {
         await api.post(`/api/${params.storeId}/billboards`, { imageUrl, label });
+        router.push(`/${params.storeId}/billboards`);
       }
       toast.success(toastMessage);
-      router.push(`/${params.storeId}/billboards`);
     } catch (error) {
       const errorMessage = handleAxiosError(error);
       toast.error(errorMessage);

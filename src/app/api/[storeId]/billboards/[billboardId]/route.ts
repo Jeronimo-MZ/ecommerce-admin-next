@@ -9,7 +9,7 @@ const updateBillboardBodySchema = z.object({
   imageUrl: z.string().url(),
 });
 
-export async function POST(req: Request, { params }: { params: { storeId: string; billboardId: string } }) {
+export async function PATCH(req: Request, { params }: { params: { storeId: string; billboardId: string } }) {
   try {
     const { userId } = auth();
     if (!userId) return new NextResponse("Unauthenticated", { status: 401 });
