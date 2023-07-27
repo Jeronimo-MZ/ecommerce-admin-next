@@ -23,6 +23,7 @@ model Store {
   categories Category[]
   sizes      Size[]
   colors     Color[]
+  products   Product[]
 
   @@unique([name, userId])
 }
@@ -54,6 +55,7 @@ model Category {
 
   billboard   Billboard @relation(fields: [billboardId], references: [id])
   billboardId String
+  products    Product[]
 
   @@index([storeId])
   @@index([billboardId])
@@ -67,8 +69,9 @@ model Size {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  store   Store  @relation(fields: [storeId], references: [id])
-  storeId String
+  store    Store     @relation(fields: [storeId], references: [id])
+  storeId  String
+  products Product[]
 
   @@unique([storeId, name])
   @@index([storeId])
@@ -82,9 +85,50 @@ model Color {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  store   Store  @relation(fields: [storeId], references: [id])
-  storeId String
+  store    Store     @relation(fields: [storeId], references: [id])
+  storeId  String
+  products Product[]
 
   @@unique([storeId, name])
   @@index([storeId])
+}
+
+model Product {
+  id         String  @id @default(uuid())
+  name       String
+  price      Decimal
+  isFeatured Boolean @default(false)
+  isArchived Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  store    Store    @relation(fields: [storeId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+  size     Size     @relation(fields: [sizeId], references: [id])
+  color    Color    @relation(fields: [colorId], references: [id])
+
+  storeId    String
+  categoryId String
+  sizeId     String
+  colorId    String
+  images     ProductImage[]
+
+  @@index([storeId])
+  @@index([categoryId])
+  @@index([sizeId])
+  @@index([colorId])
+}
+
+model ProductImage {
+  id      String  @id @default(uuid())
+  url     String
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  productId String
+
+  @@index([productId])
 }
