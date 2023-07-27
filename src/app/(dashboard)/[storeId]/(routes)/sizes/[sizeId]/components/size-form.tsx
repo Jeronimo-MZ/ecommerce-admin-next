@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Billboard } from "@prisma/client";
 import { Trash } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -14,48 +13,46 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Heading } from "@/components/ui/heading";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/axios";
 import { handleAxiosError } from "@/utils/handle-axios-error";
 
-const CategoryFormSchema = z.object({
+const SizeFormSchema = z.object({
   name: z.string().min(1, "name is required"),
-  billboardId: z.string().uuid("billboard is required"),
+  value: z.string().min(1, "size is required"),
 });
 
-type CategoryFormData = z.infer<typeof CategoryFormSchema>;
+type SizeFormData = z.infer<typeof SizeFormSchema>;
 
-type CategoryFormProps = {
-  initialData: CategoryFormData | null;
-  billboards: Billboard[];
+type SizeFormProps = {
+  initialData: SizeFormData | null;
 };
-export const CategoryForm = ({ initialData, billboards }: CategoryFormProps) => {
+export const SizeForm = ({ initialData }: SizeFormProps) => {
   const params = useParams();
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const form = useForm<CategoryFormData>({
-    resolver: zodResolver(CategoryFormSchema),
+  const form = useForm<SizeFormData>({
+    resolver: zodResolver(SizeFormSchema),
     defaultValues: initialData || {
       name: "",
-      billboardId: "",
+      value: "",
     },
   });
 
-  const title = initialData ? "Edit category" : "Create category";
-  const description = initialData ? "Edit a category" : "Add a new category";
-  const toastMessage = initialData ? "Category updated." : "Category created.";
+  const title = initialData ? "Edit size" : "Create size";
+  const description = initialData ? "Edit a size" : "Add a new size";
+  const toastMessage = initialData ? "Size updated." : "Size created.";
   const action = initialData ? "Save changes" : "Create";
 
-  const handleSubmitForm = async (data: CategoryFormData) => {
+  const handleSubmitForm = async (data: SizeFormData) => {
     try {
       if (initialData) {
-        await api.patch(`/api/${params.storeId}/categories/${params.categoryId}`, data);
+        await api.patch(`/api/${params.storeId}/sizes/${params.sizeId}`, data);
         router.refresh();
       } else {
-        await api.post(`/api/${params.storeId}/categories`, data);
-        router.push(`/${params.storeId}/categories`);
+        await api.post(`/api/${params.storeId}/sizes`, data);
+        router.push(`/${params.storeId}/sizes`);
       }
       toast.success(toastMessage);
     } catch (error) {
@@ -64,12 +61,12 @@ export const CategoryForm = ({ initialData, billboards }: CategoryFormProps) => 
     }
   };
 
-  const handleDeleteCategory = async () => {
+  const handleDeleteSize = async () => {
     try {
       setIsDeleting(true);
-      await api.delete(`/api/${params.storeId}/categories/${params.categoryId}`);
-      toast.success("Category deleted");
-      router.push(`/${params.storeId}/categories`);
+      await api.delete(`/api/${params.storeId}/sizes/${params.sizeId}`);
+      toast.success("Size deleted");
+      router.push(`/${params.storeId}/sizes`);
     } catch (error) {
       const errorMessage = handleAxiosError(error);
       toast.error(errorMessage);
@@ -84,7 +81,7 @@ export const CategoryForm = ({ initialData, billboards }: CategoryFormProps) => 
       <AlertModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleDeleteCategory}
+        onConfirm={handleDeleteSize}
         loading={isDeleting}
       />
       <div className="flex items-center justify-between">
@@ -112,7 +109,7 @@ export const CategoryForm = ({ initialData, billboards }: CategoryFormProps) => 
                 <Form.Item>
                   <Form.Label>Name</Form.Label>
                   <Form.Control>
-                    <Input placeholder="Category name" disabled={form.formState.isSubmitting} {...field} />
+                    <Input placeholder="Size name" disabled={form.formState.isSubmitting} {...field} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -120,29 +117,13 @@ export const CategoryForm = ({ initialData, billboards }: CategoryFormProps) => 
             />
             <Form.Field
               control={form.control}
-              name="billboardId"
+              name="value"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Billboard</Form.Label>
-                  <Select.Root
-                    disabled={form.formState.isSubmitting}
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <Form.Control>
-                      <Select.Trigger>
-                        <Select.Value defaultValue={field.value} placeholder="Select a billboard" />
-                      </Select.Trigger>
-                    </Form.Control>
-                    <Select.Content>
-                      {billboards.map(billboard => (
-                        <Select.Item key={billboard.id} value={billboard.id}>
-                          {billboard.label}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select.Root>
+                  <Form.Label>Value</Form.Label>
+                  <Form.Control>
+                    <Input placeholder="Size value" disabled={form.formState.isSubmitting} {...field} />
+                  </Form.Control>
                   <Form.Message />
                 </Form.Item>
               )}
