@@ -23,20 +23,20 @@ export const CellAction = ({ data }: CellActionProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const handleCopy = (billboardId: string) => {
-    navigator.clipboard.writeText(billboardId);
-    toast.success("Billboard ID copied to the clipboard");
+  const handleCopy = (productId: string) => {
+    navigator.clipboard.writeText(productId);
+    toast.success("Product ID copied to the clipboard");
   };
 
   const handleUpdateClick = () => {
-    router.push(`/${params.storeId}/billboards/${data.id}`);
+    router.push(`/${params.storeId}/products/${data.id}`);
   };
 
-  const handleDeleteBillboard = async () => {
+  const handleDeleteProduct = async () => {
     try {
       setIsDeleting(true);
-      await api.delete(`/api/${params.storeId}/billboards/${data.id}`);
-      toast.success("Billboard deleted");
+      await api.delete(`/api/${params.storeId}/products/${data.id}`);
+      toast.success("Product deleted");
       router.refresh();
     } catch (error) {
       const errorMessage = handleAxiosError(error);
@@ -51,7 +51,7 @@ export const CellAction = ({ data }: CellActionProps) => {
       <AlertModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleDeleteBillboard}
+        onConfirm={handleDeleteProduct}
         loading={isDeleting}
       />
       <DropdownMenu.Root>

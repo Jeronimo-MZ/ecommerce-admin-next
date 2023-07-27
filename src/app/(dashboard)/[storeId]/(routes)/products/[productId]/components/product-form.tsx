@@ -22,7 +22,7 @@ import { api } from "@/lib/axios";
 import { handleAxiosError } from "@/utils/handle-axios-error";
 
 type ProductFormProps = {
-  initialData: (Product & { images: ProductImage[] }) | null;
+  initialData: (Omit<Product, "price"> & { images: ProductImage[]; price: number }) | null;
   categories: Category[];
   sizes: Size[];
   colors: Color[];
@@ -48,7 +48,7 @@ export const ProductForm = ({ initialData, categories, colors, sizes }: ProductF
   const form = useForm<ProductFormData>({
     resolver: zodResolver(ProductFormSchema),
     defaultValues: initialData
-      ? { ...initialData, price: initialData.price.toNumber() }
+      ? { ...initialData }
       : {
           images: [],
           name: "",

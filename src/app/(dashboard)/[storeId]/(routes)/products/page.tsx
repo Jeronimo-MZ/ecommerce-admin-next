@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 
 import { prisma } from "@/lib/prisma";
+import { formatMoney } from "@/utils/format-money";
 
 import { ProductClient } from "./components/client";
 import { ProductColumn } from "./components/column";

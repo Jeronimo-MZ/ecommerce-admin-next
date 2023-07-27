@@ -13,7 +13,7 @@ type ProductPageProps = {
 };
 
 const ProductPage = async ({ params }: ProductPageProps) => {
-  let productData: (Product & { images: ProductImage[] }) | null = null;
+  let productData: (Omit<Product, "price"> & { images: ProductImage[]; price: number }) | null = null;
   if (params.productId.toLocaleLowerCase() !== "new") {
     const productResult = await prisma.product.findUnique({
       where: { id: params.productId, storeId: params.storeId },
@@ -22,7 +22,7 @@ const ProductPage = async ({ params }: ProductPageProps) => {
     if (!productResult) {
       notFound();
     } else {
-      productData = { ...productResult };
+      productData = { ...productResult, price: productResult.price.toNumber() };
     }
   }
   const [categories, sizes, colors] = await prisma.$transaction([
