@@ -5,7 +5,7 @@ import { Billboard, Store } from "@prisma/client";
 import { isAxiosError } from "axios";
 import { Trash } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { z } from "zod";
@@ -18,7 +18,6 @@ import { Heading } from "@/components/ui/heading";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { useOrigin } from "@/hooks/use-origin";
 import { api } from "@/lib/axios";
 import { handleAxiosError } from "@/utils/handle-axios-error";
 
@@ -27,15 +26,14 @@ type BillboardFormProps = {
 };
 
 const BillboardFormSchema = z.object({
-  label: z.string(),
-  imageUrl: z.string(),
+  label: z.string().min(1, "label is required"),
+  imageUrl: z.string().url("invalid image"),
 });
 
 type BillboardFormData = z.infer<typeof BillboardFormSchema>;
 export const BillboardForm = ({ initialData }: BillboardFormProps) => {
   const params = useParams();
   const router = useRouter();
-  const origin = useOrigin();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const form = useForm<BillboardFormData>({
@@ -58,20 +56,20 @@ export const BillboardForm = ({ initialData }: BillboardFormProps) => {
       } else {
         await api.post(`/api/${params.storeId}/billboards`, { imageUrl, label });
       }
-      router.refresh();
       toast.success(toastMessage);
+      router.push(`/${params.storeId}/billboards`);
     } catch (error) {
       const errorMessage = handleAxiosError(error);
       toast.error(errorMessage);
     }
   };
 
-  const handleDeleteStore = async () => {
+  const handleDeleteBillboard = async () => {
     try {
       setIsDeleting(true);
       await api.delete(`/api/${params.storeId}/billboards/${params.billboardId}`);
       toast.success("Billboard deleted");
-      router.push("/");
+      router.push(`/${params.storeId}/billboards`);
     } catch (error) {
       const errorMessage = handleAxiosError(error);
       toast.error(errorMessage);
@@ -86,7 +84,7 @@ export const BillboardForm = ({ initialData }: BillboardFormProps) => {
       <AlertModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleDeleteStore}
+        onConfirm={handleDeleteBillboard}
         loading={isDeleting}
       />
       <div className="flex items-center justify-between">

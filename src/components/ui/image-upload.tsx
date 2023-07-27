@@ -2,7 +2,7 @@
 
 import { ImagePlusIcon, TrashIcon } from "lucide-react";
 import Image from "next/image";
-import { CldUploadButtonProps, CldUploadWidget } from "next-cloudinary";
+import { CldUploadWidget } from "next-cloudinary";
 
 import { BaseClientProvider } from "@/providers/base-client-provider";
 
