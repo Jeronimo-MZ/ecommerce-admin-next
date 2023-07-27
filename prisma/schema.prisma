@@ -21,6 +21,7 @@ model Store {
 
   billboards Billboard[]
   categories Category[]
+  Size       Size[]
 
   @@unique([name, userId])
 }
@@ -55,4 +56,19 @@ model Category {
 
   @@index([storeId])
   @@index([billboardId])
+}
+
+model Size {
+  id    String @id @default(uuid())
+  name  String
+  value String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  store   Store  @relation(fields: [storeId], references: [id])
+  storeId String
+
+  @@unique([storeId, name])
+  @@index([storeId])
 }
