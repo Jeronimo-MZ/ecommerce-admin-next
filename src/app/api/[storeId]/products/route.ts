@@ -73,6 +73,7 @@ export async function GET(req: Request, { params }: { params: { storeId: string 
         isArchived: false,
       },
       orderBy: { createdAt: "desc" },
+      include: { images: true, category: true, size: true, color: true },
     });
     return NextResponse.json(products);
   } catch (error) {

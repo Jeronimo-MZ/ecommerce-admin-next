@@ -78,7 +78,10 @@ export async function DELETE(req: Request, { params }: Params) {
 
 export async function GET(req: Request, { params }: Params) {
   try {
-    const product = await prisma.product.findUnique({ where: { id: params.productId } });
+    const product = await prisma.product.findUnique({
+      where: { id: params.productId },
+      include: { images: true, category: true, size: true, color: true },
+    });
     if (!product) return new NextResponse("Product not found", { status: 404 });
 
     return NextResponse.json(product);
