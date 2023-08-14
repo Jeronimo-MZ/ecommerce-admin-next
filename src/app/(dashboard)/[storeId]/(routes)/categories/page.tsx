@@ -9,7 +9,7 @@ type CategoriesPageProps = {
   params: { storeId: string };
 };
 
-export const CategoriesPage = async ({ params }: CategoriesPageProps) => {
+const CategoriesPage = async ({ params }: CategoriesPageProps) => {
   const categories = await prisma.category.findMany({
     where: { storeId: params.storeId },
     orderBy: { createdAt: "asc" },

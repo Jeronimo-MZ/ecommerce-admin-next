@@ -41,7 +41,10 @@ export async function POST(req: Request, { params }: { params: { storeId: string
 
 export async function GET(req: Request, { params }: { params: { storeId: string } }) {
   try {
-    const categories = await prisma.category.findMany({ where: { storeId: params.storeId } });
+    const categories = await prisma.category.findMany({
+      where: { storeId: params.storeId },
+      include: { billboard: true },
+    });
     return NextResponse.json(categories);
   } catch (error) {
     console.error(`[GET] /:storeId/categories -> ${error}`);

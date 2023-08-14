@@ -9,7 +9,7 @@ type SettingsPageProps = {
   params: { storeId: string };
 };
 
-export const SettingsPage = async ({ params }: SettingsPageProps) => {
+const SettingsPage = async ({ params }: SettingsPageProps) => {
   const { userId } = auth();
   if (!userId) redirect("/");
   const store = await prisma.store.findUnique({ where: { id: params.storeId, userId } });

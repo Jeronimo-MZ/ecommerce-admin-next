@@ -10,7 +10,7 @@ type ProductsPageProps = {
   params: { storeId: string };
 };
 
-export const ProductsPage = async ({ params }: ProductsPageProps) => {
+const ProductsPage = async ({ params }: ProductsPageProps) => {
   const products = await prisma.product.findMany({
     where: { storeId: params.storeId },
     orderBy: { createdAt: "asc" },

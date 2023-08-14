@@ -9,7 +9,7 @@ type ColorsPageProps = {
   params: { storeId: string };
 };
 
-export const ColorsPage = async ({ params }: ColorsPageProps) => {
+const ColorsPage = async ({ params }: ColorsPageProps) => {
   const colors = await prisma.color.findMany({
     where: { storeId: params.storeId },
     orderBy: { createdAt: "asc" },

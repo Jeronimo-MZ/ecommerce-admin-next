@@ -9,7 +9,7 @@ type SizesPageProps = {
   params: { storeId: string };
 };
 
-export const SizesPage = async ({ params }: SizesPageProps) => {
+const SizesPage = async ({ params }: SizesPageProps) => {
   const sizes = await prisma.size.findMany({
     where: { storeId: params.storeId },
     orderBy: { createdAt: "asc" },

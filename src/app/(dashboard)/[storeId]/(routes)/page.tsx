@@ -4,7 +4,7 @@ type DashboardPageProps = {
   params: { storeId: string };
 };
 
-export const DashboardPage: NextPage<DashboardPageProps> = props => {
+const DashboardPage: NextPage<DashboardPageProps> = props => {
   return (
     <div className="p-4">
       <h1>Dashboard</h1>

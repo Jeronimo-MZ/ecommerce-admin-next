@@ -9,7 +9,7 @@ type BillboardsPageProps = {
   params: { storeId: string };
 };
 
-export const BillboardsPage = async ({ params }: BillboardsPageProps) => {
+const BillboardsPage = async ({ params }: BillboardsPageProps) => {
   const billboards = await prisma.billboard.findMany({
     where: { storeId: params.storeId },
     orderBy: { createdAt: "asc" },
