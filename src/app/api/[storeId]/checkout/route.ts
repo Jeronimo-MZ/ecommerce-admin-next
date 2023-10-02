@@ -30,7 +30,6 @@ const createCheckoutSessionSchema = z.object({
 export async function POST(req: Request, { params }: POSTParameters) {
   try {
     const validationResult = createCheckoutSessionSchema.safeParse(await req.json());
-    console.log(JSON.stringify(validationResult, null, 2));
     if (!validationResult.success) {
       return new NextResponse((validationResult.error.message as any)?.message ?? validationResult.error.message, {
         status: 400,
