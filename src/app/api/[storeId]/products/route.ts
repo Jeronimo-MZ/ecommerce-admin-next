@@ -1,4 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -50,6 +51,9 @@ export async function POST(req: Request, { params }: { params: { storeId: string
     });
     return NextResponse.json(createdProduct, { status: 201 });
   } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError && error.code === "P2025") {
+      return new NextResponse("Invalid category, color or size.", { status: 400 });
+    }
     console.error(`[POST] /:storeId/products -> ${error}`);
     return new NextResponse("Internal Error", { status: 500 });
   }
@@ -75,7 +79,7 @@ export async function GET(req: Request, { params }: { params: { storeId: string 
       orderBy: { createdAt: "desc" },
       include: { images: true, category: true, size: true, color: true },
     });
-    return NextResponse.json(products);
+    return NextResponse.json(products.map(p => ({ ...p, price: p.price.toNumber() })));
   } catch (error) {
     console.error(`[GET] /:storeId/products -> ${error}`);
     return new NextResponse("Internal Error", { status: 500 });

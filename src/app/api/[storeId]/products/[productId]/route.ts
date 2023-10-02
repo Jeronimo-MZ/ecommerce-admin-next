@@ -84,7 +84,7 @@ export async function GET(req: Request, { params }: Params) {
     });
     if (!product) return new NextResponse("Product not found", { status: 404 });
 
-    return NextResponse.json(product);
+    return NextResponse.json({ ...product, price: product.price.toNumber() });
   } catch (error) {
     console.error(`[GET] /:storeId/products/:productId -> ${error}`);
     return new NextResponse("Internal Error", { status: 500 });
