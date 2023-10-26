@@ -1,8 +1,8 @@
-import { auth } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 
 import { Navbar } from "@/components/navbar";
-import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { StoreRepository } from "../../../../server/repositories/store-repository";
 
 type DashboardLayoutProps = {
   children: string;
@@ -11,12 +11,11 @@ type DashboardLayoutProps = {
   };
 };
 export default async function DashboardLayout({ children, params }: DashboardLayoutProps) {
-  const { userId } = auth();
-  if (!userId) redirect("/sign-in");
+  const session = await getServerSession();
+  if (!session || !session.user) redirect("/sign-in");
 
-  const store = await prisma.store.findUnique({
-    where: { id: params.storeId, userId },
-  });
+  const storeRepository = new StoreRepository();
+  const store = await storeRepository.findOne({ id: Number(params.storeId), userId: session.user.id });
 
   if (!store) redirect("/");
 

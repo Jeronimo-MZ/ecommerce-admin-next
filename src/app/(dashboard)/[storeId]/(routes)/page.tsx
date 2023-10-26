@@ -16,18 +16,18 @@ type DashboardPageProps = {
 };
 
 const DashboardPage = async (props: DashboardPageProps) => {
-  const totalRevenue = await getTotalRevenue(props.params.storeId);
+  const totalRevenue = await getTotalRevenue(Number(props.params.storeId));
   const salesCount = await getSalesCount(props.params.storeId);
   const stockCount = await getStockCount(props.params.storeId);
   return (
     <div className="flex-col">
       <div className="flex-1 space-y-4 p-8 pt-6">
-        <Heading title="Dashboard" description="Overview of Your store" />
+        <Heading title="Dashboard" description="Uma visão geral da sua loja" />
         <Separator />
         <div className="grid gap-4 grid-cols-3">
           <Card.Root>
             <Card.Header className="flex flex-row justify-between space-y-0 pb-2">
-              <Card.Title className="text-md font-medium">Total Revenue</Card.Title>
+              <Card.Title className="text-md font-medium">Faturamento Total</Card.Title>
               <DollarSign className="h-5 w-5 text-muted-foreground" />
             </Card.Header>
             <Card.Content>
@@ -36,7 +36,7 @@ const DashboardPage = async (props: DashboardPageProps) => {
           </Card.Root>
           <Card.Root>
             <Card.Header className="flex flex-row justify-between space-y-0 pb-2">
-              <Card.Title className="text-md font-medium">Sales</Card.Title>
+              <Card.Title className="text-md font-medium">Vendas</Card.Title>
               <CreditCardIcon className="h-5 w-5 text-muted-foreground" />
             </Card.Header>
             <Card.Content>
@@ -45,7 +45,7 @@ const DashboardPage = async (props: DashboardPageProps) => {
           </Card.Root>
           <Card.Root>
             <Card.Header className="flex flex-row justify-between space-y-0 pb-2">
-              <Card.Title className="text-md font-medium">Products In Stock</Card.Title>
+              <Card.Title className="text-md font-medium">Produtos em Stock</Card.Title>
               <PackageIcon className="h-5 w-5 text-muted-foreground" />
             </Card.Header>
             <Card.Content>

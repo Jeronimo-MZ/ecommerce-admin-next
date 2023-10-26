@@ -17,31 +17,31 @@ export const MainNav = ({ className, ...props }: HTMLAttributes<HTMLElement>) =>
     },
     {
       href: `/${params.storeId}/billboards`,
-      label: "Billboards",
+      label: "Capas",
     },
     {
       href: `/${params.storeId}/categories`,
-      label: "Categories",
+      label: "Categorias",
     },
     {
       href: `/${params.storeId}/colors`,
-      label: "Colors",
+      label: "Cores",
     },
     {
       href: `/${params.storeId}/sizes`,
-      label: "Sizes",
+      label: "Tamanhos",
     },
     {
       href: `/${params.storeId}/products`,
-      label: "Products",
+      label: "Produtos",
     },
     {
       href: `/${params.storeId}/orders`,
-      label: "Orders",
+      label: "Pedidos",
     },
     {
       href: `/${params.storeId}/settings`,
-      label: "Settings",
+      label: "Configurações",
     },
   ];
 

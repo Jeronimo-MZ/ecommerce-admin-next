@@ -1,5 +1,4 @@
 "use client";
-import { type Store } from "@prisma/client";
 import { Check, ChevronsUpDown, PlusCircle, Store as StoreIcon } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { ComponentPropsWithoutRef, useState } from "react";
@@ -10,6 +9,7 @@ import { useStoreModal } from "@/hooks/use-store-modal";
 import { cn } from "@/lib/utils";
 
 import { Command } from "./ui/command";
+import { Store } from "../../server/models/store";
 
 type PopoverTriggerProps = ComponentPropsWithoutRef<typeof Popover.Trigger>;
 
@@ -25,7 +25,7 @@ export const StoreSwitcher = ({ className, items = [] }: StoreSwitcherProps) => 
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   const formattedItems = items.map(item => ({ label: item.name, value: item.id }));
-  const currentStore = formattedItems.find(item => item.value === params.storeId);
+  const currentStore = formattedItems.find(item => item.value === Number(params.storeId));
 
   const onStoreSelect = (store: (typeof formattedItems)[number]) => {
     setPopoverOpen(false);

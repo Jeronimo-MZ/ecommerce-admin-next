@@ -1,12 +1,17 @@
-import { prisma } from "@/lib/prisma";
+import { RowDataPacket } from "mysql2";
+import { db } from "../../server/lib/mysql";
 
-export async function getTotalRevenue(storeId: string): Promise<number> {
-  const paidOrders = await prisma.order.findMany({
-    where: { storeId, paidAt: { not: null } },
-    include: { orderItems: true },
-  });
+export async function getTotalRevenue(storeId: number): Promise<number> {
+  const [result] = await db.query<RowDataPacket[]>(
+    `
+    SELECT SUM(IP.item_preco_venda * IP.item_quantidade) as revenue
+    FROM PEDIDO AS P
+    JOIN ITEM_PEDIDO AS IP ON IP.cod_pedido=P.ped_cod
+    WHERE cod_loja=?
+    ;
+  `,
+    [storeId],
+  );
 
-  return paidOrders
-    .flatMap(order => order.orderItems)
-    .reduce((total, currentItem) => total + currentItem.unitPrice.toNumber() * currentItem.quantity, 0);
+  return Number(result[0].revenue ?? 0);
 }

@@ -1,7 +1,15 @@
-import { prisma } from "@/lib/prisma";
+import { RowDataPacket } from "mysql2";
+import { db } from "../../server/lib/mysql";
 
 export async function getStockCount(storeId: string): Promise<number> {
-  return await prisma.product.count({
-    where: { storeId, isArchived: false },
-  });
+  const [result] = await db.query<RowDataPacket[]>(
+    `
+    SELECT COUNT(*) as stock
+    FROM PRODUTO
+    WHERE cod_loja=? AND produto_quantidade_stock > 0
+    ;
+  `,
+    [storeId],
+  );
+  return Number(result[0].stock);
 }
