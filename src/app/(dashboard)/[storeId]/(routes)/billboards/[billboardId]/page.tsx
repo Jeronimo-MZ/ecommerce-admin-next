@@ -1,8 +1,7 @@
-import { Billboard } from "@prisma/client";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
-import { prisma } from "@/lib/prisma";
-
+import { Billboard } from "../../../../../../../server/models/billboard";
+import { BillboardRepository } from "../../../../../../../server/repositories/billboard-repository";
 import { BillboardForm } from "./components/billboard-form";
 
 type BillboardPageProps = {
@@ -15,7 +14,8 @@ type BillboardPageProps = {
 const BillboardPage = async ({ params }: BillboardPageProps) => {
   let billboardData: Billboard | null = null;
   if (params.billboardId.toLocaleLowerCase() !== "new") {
-    const billboardResult = await prisma.billboard.findUnique({ where: { id: params.billboardId } });
+    const billboardRepository = new BillboardRepository();
+    const billboardResult = await billboardRepository.findOne({ id: Number(params.billboardId) });
     if (!billboardResult) {
       notFound();
     } else {

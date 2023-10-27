@@ -1,17 +1,14 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Billboard, Store } from "@prisma/client";
-import { isAxiosError } from "axios";
 import { Trash } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { Suspense, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { z } from "zod";
 
 import { AlertModal } from "@/components/modals/alert-modal";
-import { ApiAlert } from "@/components/ui/api-alert";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Heading } from "@/components/ui/heading";
@@ -21,13 +18,15 @@ import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/axios";
 import { handleAxiosError } from "@/utils/handle-axios-error";
 
+import { Billboard } from "../../../../../../../../server/models/billboard";
+
 type BillboardFormProps = {
   initialData: Billboard | null;
 };
 
 const BillboardFormSchema = z.object({
-  label: z.string().min(1, "label is required"),
-  imageUrl: z.string().url("invalid image"),
+  label: z.string().nonempty("Campo obrigatório"),
+  imageUrl: z.string().url("Imagem inválida"),
 });
 
 type BillboardFormData = z.infer<typeof BillboardFormSchema>;
@@ -44,10 +43,10 @@ export const BillboardForm = ({ initialData }: BillboardFormProps) => {
     },
   });
 
-  const title = initialData ? "Edit billboard" : "Create billboard";
-  const description = initialData ? "Edit a billboard" : "Add a new billboard";
-  const toastMessage = initialData ? "Billboard updated." : "Billboard created.";
-  const action = initialData ? "Save changes" : "Create";
+  const title = initialData ? "Editar Capa" : "Criar Capa";
+  const description = initialData ? "Editar uma capa" : "Adicionar uma capa";
+  const toastMessage = initialData ? "Capa actualizada." : "Capa criada.";
+  const action = initialData ? "Salvar Mudanças" : "Criar";
 
   const handleSubmitForm = async ({ imageUrl, label }: BillboardFormData) => {
     try {
@@ -69,7 +68,7 @@ export const BillboardForm = ({ initialData }: BillboardFormProps) => {
     try {
       setIsDeleting(true);
       await api.delete(`/api/${params.storeId}/billboards/${params.billboardId}`);
-      toast.success("Billboard deleted");
+      toast.success("Capa Deletada");
       router.push(`/${params.storeId}/billboards`);
     } catch (error) {
       const errorMessage = handleAxiosError(error);
@@ -110,7 +109,7 @@ export const BillboardForm = ({ initialData }: BillboardFormProps) => {
             name="imageUrl"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Background Image</Form.Label>
+                <Form.Label>Imagem</Form.Label>
                 <Form.Control>
                   <ImageUpload
                     value={field.value ? [field.value] : []}
@@ -128,9 +127,9 @@ export const BillboardForm = ({ initialData }: BillboardFormProps) => {
               name="label"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Label</Form.Label>
+                  <Form.Label>Texto</Form.Label>
                   <Form.Control>
-                    <Input placeholder="Billboard Label" disabled={form.formState.isSubmitting} {...field} />
+                    <Input placeholder="Texto da Capa" disabled={form.formState.isSubmitting} {...field} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>

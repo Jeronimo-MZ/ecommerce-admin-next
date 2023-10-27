@@ -1,8 +1,11 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { z } from "zod";
 
-import { prisma } from "@/lib/prisma";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+
+import { BillboardRepository } from "../../../../../../server/repositories/billboard-repository";
+import { StoreRepository } from "../../../../../../server/repositories/store-repository";
 
 const updateBillboardBodySchema = z.object({
   label: z.string().min(1),
@@ -11,21 +14,23 @@ const updateBillboardBodySchema = z.object({
 
 export async function PATCH(req: Request, { params }: { params: { storeId: string; billboardId: string } }) {
   try {
-    const { userId } = auth();
-    if (!userId) return new NextResponse("Unauthenticated", { status: 401 });
-
     const body = await req.json();
     const validationResult = updateBillboardBodySchema.safeParse(body);
     if (!validationResult.success) return new NextResponse(validationResult.error.message, { status: 400 });
     const { imageUrl, label } = validationResult.data;
 
-    const store = await prisma.store.findUnique({ where: { id: params.storeId, userId } });
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) return new NextResponse("Unauthorized", { status: 401 });
+    const storeRepository = new StoreRepository();
+
+    const store = await storeRepository.findOne({ id: Number(params.storeId), userId: session.user.id });
     if (!store) return new NextResponse("Forbidden", { status: 403 });
+    const billboardRepository = new BillboardRepository();
 
-    const billboard = await prisma.billboard.findUnique({ where: { id: params.billboardId, storeId: store.id } });
-    if (!billboard) return new NextResponse("Forbidden", { status: 403 });
+    const billboard = await billboardRepository.findOne({ id: Number(params.billboardId) });
+    if (!billboard || billboard.storeId !== store.id) return new NextResponse("Forbidden", { status: 403 });
 
-    const updatedBillboard = await prisma.billboard.update({ where: { id: billboard.id }, data: { label, imageUrl } });
+    const updatedBillboard = await billboardRepository.update({ billboardId: billboard.id, label, imageUrl });
 
     return NextResponse.json(updatedBillboard, { status: 200 });
   } catch (error) {
@@ -36,16 +41,18 @@ export async function PATCH(req: Request, { params }: { params: { storeId: strin
 
 export async function DELETE(req: Request, { params }: { params: { storeId: string; billboardId: string } }) {
   try {
-    const { userId } = auth();
-    if (!userId) return new NextResponse("Unauthenticated", { status: 401 });
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) return new NextResponse("Unauthorized", { status: 401 });
+    const storeRepository = new StoreRepository();
 
-    const store = await prisma.store.findUnique({ where: { id: params.storeId, userId } });
+    const store = await storeRepository.findOne({ id: Number(params.storeId), userId: session.user.id });
     if (!store) return new NextResponse("Forbidden", { status: 403 });
+    const billboardRepository = new BillboardRepository();
 
-    const billboard = await prisma.billboard.findUnique({ where: { id: params.billboardId, storeId: store.id } });
-    if (!billboard) return new NextResponse("Billboard not found", { status: 404 });
+    const billboard = await billboardRepository.findOne({ id: Number(params.billboardId) });
+    if (!billboard || billboard.storeId !== store.id) return new NextResponse("Forbidden", { status: 403 });
 
-    await prisma.billboard.delete({ where: { id: billboard.id } });
+    await billboardRepository.delete({ id: billboard.id });
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error(`[DELETE] /:storeId/billboard/:billboardId -> ${error}`);
@@ -55,7 +62,8 @@ export async function DELETE(req: Request, { params }: { params: { storeId: stri
 
 export async function GET(req: Request, { params }: { params: { billboardId: string } }) {
   try {
-    const billboard = await prisma.billboard.findUnique({ where: { id: params.billboardId } });
+    const billboardRepository = new BillboardRepository();
+    const billboard = await billboardRepository.findOne({ id: Number(params.billboardId) });
     if (!billboard) return new NextResponse("Billboard not found", { status: 404 });
 
     return NextResponse.json(billboard);

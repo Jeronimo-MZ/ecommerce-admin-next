@@ -39,7 +39,7 @@ export const ImageUpload = ({ onChange, onRemove, value, disabled = false }: Ima
             return (
               <Button type="button" disabled={disabled} variant="secondary" onClick={onClick}>
                 <ImagePlusIcon className="w-4 h-4 mr-2" />
-                Upload an Image
+                Carregar uma Imagem
               </Button>
             );
           }}

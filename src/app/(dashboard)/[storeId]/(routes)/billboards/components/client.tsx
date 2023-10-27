@@ -22,18 +22,18 @@ export const BillboardClient = ({ data }: BillboardClientProps) => {
   return (
     <>
       <div className="flex items-center justify-between">
-        <Heading title={`Billboards (${data.length})`} description="Manage billboards for your store" />
+        <Heading title={`Capas (${data.length})`} description="Faça a gestão de capas para a sua loja" />
         <Button className="capitalize" asChild>
           <Link href={`/${params.storeId}/billboards/new`}>
             <PlusIcon className="mr-2 w-4 h-4" />
-            Add new
+            Adicionar
           </Link>
         </Button>
       </div>
       <Separator />
       <DataTable columns={columns} data={data} searchKey="label" />
       <Separator />
-      <Heading title="API" description="API calls for billboards" />
+      <Heading title="API" description="API de Capas" />
       <ApiList entityId="billboardId" entityName="billboards" />
     </>
   );

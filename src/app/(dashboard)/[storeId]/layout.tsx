@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
 
 import { Navbar } from "@/components/navbar";
-import { getServerSession } from "next-auth";
+
 import { StoreRepository } from "../../../../server/repositories/store-repository";
 
 type DashboardLayoutProps = {

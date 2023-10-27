@@ -1,9 +1,7 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-
-import { prisma } from "@/lib/prisma";
-import { z } from "zod";
 import { getServerSession } from "next-auth";
+import { z } from "zod";
+
 import { StoreRepository } from "../../../../server/repositories/store-repository";
 import { authOptions } from "../auth/[...nextauth]/route";
 
