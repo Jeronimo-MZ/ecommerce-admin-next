@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Billboard } from "@prisma/client";
 import { Trash } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -19,9 +18,11 @@ import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/axios";
 import { handleAxiosError } from "@/utils/handle-axios-error";
 
+import { Billboard } from "../../../../../../../../server/models/billboard";
+
 const CategoryFormSchema = z.object({
-  name: z.string().min(1, "name is required"),
-  billboardId: z.string().uuid("billboard is required"),
+  name: z.string().min(1, "Campo obrigatório"),
+  billboardId: z.coerce.number(),
 });
 
 type CategoryFormData = z.infer<typeof CategoryFormSchema>;
@@ -39,14 +40,13 @@ export const CategoryForm = ({ initialData, billboards }: CategoryFormProps) => 
     resolver: zodResolver(CategoryFormSchema),
     defaultValues: initialData || {
       name: "",
-      billboardId: "",
     },
   });
 
-  const title = initialData ? "Edit category" : "Create category";
-  const description = initialData ? "Edit a category" : "Add a new category";
-  const toastMessage = initialData ? "Category updated." : "Category created.";
-  const action = initialData ? "Save changes" : "Create";
+  const title = initialData ? "Editar categoria" : "Criar categoria";
+  const description = initialData ? "Editar uma categoria" : "Adicionar uma nova categoria";
+  const toastMessage = initialData ? "Categoria actualizada." : "Categoria criada.";
+  const action = initialData ? "Salvar Mudanças" : "Criar";
 
   const handleSubmitForm = async (data: CategoryFormData) => {
     try {
@@ -68,7 +68,7 @@ export const CategoryForm = ({ initialData, billboards }: CategoryFormProps) => 
     try {
       setIsDeleting(true);
       await api.delete(`/api/${params.storeId}/categories/${params.categoryId}`);
-      toast.success("Category deleted");
+      toast.success("Categoria deletada");
       router.push(`/${params.storeId}/categories`);
     } catch (error) {
       const errorMessage = handleAxiosError(error);
@@ -110,9 +110,9 @@ export const CategoryForm = ({ initialData, billboards }: CategoryFormProps) => 
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label>Nome</Form.Label>
                   <Form.Control>
-                    <Input placeholder="Category name" disabled={form.formState.isSubmitting} {...field} />
+                    <Input placeholder="Nome da Categoria" disabled={form.formState.isSubmitting} {...field} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -123,21 +123,21 @@ export const CategoryForm = ({ initialData, billboards }: CategoryFormProps) => 
               name="billboardId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Billboard</Form.Label>
+                  <Form.Label>Capa</Form.Label>
                   <Select.Root
                     disabled={form.formState.isSubmitting}
-                    value={field.value}
+                    value={String(field.value)}
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    defaultValue={String(field.value)}
                   >
                     <Form.Control>
                       <Select.Trigger>
-                        <Select.Value defaultValue={field.value} placeholder="Select a billboard" />
+                        <Select.Value defaultValue={field.value} placeholder="Escolha uma capa" />
                       </Select.Trigger>
                     </Form.Control>
                     <Select.Content>
                       {billboards.map(billboard => (
-                        <Select.Item key={billboard.id} value={billboard.id}>
+                        <Select.Item key={billboard.id} value={String(billboard.id)}>
                           {billboard.label}
                         </Select.Item>
                       ))}

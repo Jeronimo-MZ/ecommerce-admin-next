@@ -21,18 +21,18 @@ export const CategoryClient = ({ data }: CategoryClientProps) => {
   return (
     <>
       <div className="flex items-center justify-between">
-        <Heading title={`Categories (${data.length})`} description="Manage categories for your store" />
+        <Heading title={`Categorias (${data.length})`} description="Faça gestão das categorias da sua loja" />
         <Button className="capitalize" asChild>
           <Link href={`/${params.storeId}/categories/new`}>
             <PlusIcon className="mr-2 w-4 h-4" />
-            Add new
+            Adicionar
           </Link>
         </Button>
       </div>
       <Separator />
       <DataTable columns={columns} data={data} searchKey="name" />
       <Separator />
-      <Heading title="API" description="API calls for categories" />
+      <Heading title="API" description="API de categorias" />
       <ApiList entityId="categoryId" entityName="categories" />
     </>
   );

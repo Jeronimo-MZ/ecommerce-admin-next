@@ -1,13 +1,14 @@
 import { ResultSetHeader, RowDataPacket } from "mysql2";
+
 import {
   CreateBillboardRepository,
   FindBillboardRepository,
   FindBillboardsRepository,
 } from "../contracts/repositories/billboard";
-import { db } from "../lib/mysql";
-import { Billboard } from "../models/billboard";
 import { DeleteBillboardRepository } from "../contracts/repositories/billboard/delete-billboard";
 import { UpdateBillboardRepository } from "../contracts/repositories/billboard/update-billboard";
+import { db } from "../lib/mysql";
+import { Billboard } from "../models/billboard";
 
 export class BillboardRepository
   implements
@@ -26,22 +27,22 @@ export class BillboardRepository
       [label, imageUrl, storeId],
     );
     const billboardId = insertResult.insertId;
-    return this.findOne({ id: billboardId }) as Promise<Billboard>;
+    return this.findOne({ id: billboardId, storeId }) as Promise<Billboard>;
   }
 
-  async update({ billboardId, imageUrl, label }: UpdateBillboardRepository.Input): Promise<Billboard> {
+  async update({ billboardId, imageUrl, label, storeId }: UpdateBillboardRepository.Input): Promise<Billboard> {
     await db.execute<ResultSetHeader>(
       `
               UPDATE CAPA SET capa_texto=?, capa_url_imagem=? 
-              WHERE capa_cod=?
+              WHERE capa_cod=? AND cod_loja=?;
             `,
-      [label, imageUrl, billboardId],
+      [label, imageUrl, billboardId, storeId],
     );
-    return this.findOne({ id: billboardId }) as Promise<Billboard>;
+    return this.findOne({ id: billboardId, storeId }) as Promise<Billboard>;
   }
 
-  async findOne({ id }: FindBillboardRepository.Input): Promise<Billboard | null> {
-    const [rows] = await db.query<RowDataPacket[]>("SELECT * FROM CAPA WHERE capa_cod=?", [id]);
+  async findOne({ id, storeId }: FindBillboardRepository.Input): Promise<Billboard | null> {
+    const [rows] = await db.query<RowDataPacket[]>("SELECT * FROM CAPA WHERE capa_cod=? AND cod_loja", [id, storeId]);
     if (rows.length <= 0) return null;
     const rawBillboard = rows[0] as RawBillboard;
     return this.mapRowToBillboard(rawBillboard);

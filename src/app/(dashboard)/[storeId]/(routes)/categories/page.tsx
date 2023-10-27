@@ -1,7 +1,6 @@
 import dayjs from "dayjs";
 
-import { prisma } from "@/lib/prisma";
-
+import { CategoryRepository } from "../../../../../../server/repositories/category-repository";
 import { CategoryClient } from "./components/client";
 import { CategoryColumn } from "./components/column";
 
@@ -10,18 +9,18 @@ type CategoriesPageProps = {
 };
 
 const CategoriesPage = async ({ params }: CategoriesPageProps) => {
-  const categories = await prisma.category.findMany({
-    where: { storeId: params.storeId },
-    orderBy: { createdAt: "asc" },
-    include: { billboard: true },
+  const categoryRepository = new CategoryRepository();
+  const categories = await categoryRepository.findMany({
+    storeId: Number(params.storeId),
   });
 
   const formattedCategories: CategoryColumn[] = categories.map(category => ({
     id: category.id,
     name: category.name,
     billboardLabel: category.billboard.label,
-    createdAt: dayjs(category.createdAt).format("MMMM D, YYYY"),
+    createdAt: dayjs(category.createdAt).format("DD/MM/YYYY"),
   }));
+
   return (
     <div className="flex-col">
       <div className="flex-1 space-y-4 p-8 pt-6">

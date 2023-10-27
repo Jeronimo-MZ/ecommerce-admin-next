@@ -5,5 +5,5 @@ export interface FindBillboardRepository {
 }
 
 export namespace FindBillboardRepository {
-  export type Input = { id: number };
+  export type Input = { id: number; storeId: number };
 }

@@ -13,7 +13,7 @@ export const MainNav = ({ className, ...props }: HTMLAttributes<HTMLElement>) =>
   const routes = [
     {
       href: `/${params.storeId}`,
-      label: "Overview",
+      label: "Resumo",
     },
     {
       href: `/${params.storeId}/billboards`,

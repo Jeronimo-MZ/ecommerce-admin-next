@@ -9,5 +9,6 @@ export namespace UpdateBillboardRepository {
     label: string;
     imageUrl: string;
     billboardId: number;
+    storeId: number;
   };
 }

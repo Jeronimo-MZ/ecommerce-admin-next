@@ -1,4 +1,4 @@
-import { OkPacket, ResultSetHeader, RowDataPacket } from "mysql2";
+import { ResultSetHeader, RowDataPacket } from "mysql2";
 
 import { CreateUserRepository, FindUserRepository } from "../contracts/repositories/user";
 import { db } from "../lib/mysql";

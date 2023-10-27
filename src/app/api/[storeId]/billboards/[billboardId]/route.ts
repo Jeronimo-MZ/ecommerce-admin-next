@@ -27,10 +27,18 @@ export async function PATCH(req: Request, { params }: { params: { storeId: strin
     if (!store) return new NextResponse("Forbidden", { status: 403 });
     const billboardRepository = new BillboardRepository();
 
-    const billboard = await billboardRepository.findOne({ id: Number(params.billboardId) });
+    const billboard = await billboardRepository.findOne({
+      id: Number(params.billboardId),
+      storeId: Number(params.storeId),
+    });
     if (!billboard || billboard.storeId !== store.id) return new NextResponse("Forbidden", { status: 403 });
 
-    const updatedBillboard = await billboardRepository.update({ billboardId: billboard.id, label, imageUrl });
+    const updatedBillboard = await billboardRepository.update({
+      billboardId: billboard.id,
+      label,
+      imageUrl,
+      storeId: Number(params.storeId),
+    });
 
     return NextResponse.json(updatedBillboard, { status: 200 });
   } catch (error) {
@@ -49,7 +57,10 @@ export async function DELETE(req: Request, { params }: { params: { storeId: stri
     if (!store) return new NextResponse("Forbidden", { status: 403 });
     const billboardRepository = new BillboardRepository();
 
-    const billboard = await billboardRepository.findOne({ id: Number(params.billboardId) });
+    const billboard = await billboardRepository.findOne({
+      id: Number(params.billboardId),
+      storeId: Number(params.storeId),
+    });
     if (!billboard || billboard.storeId !== store.id) return new NextResponse("Forbidden", { status: 403 });
 
     await billboardRepository.delete({ id: billboard.id });
@@ -60,10 +71,13 @@ export async function DELETE(req: Request, { params }: { params: { storeId: stri
   }
 }
 
-export async function GET(req: Request, { params }: { params: { billboardId: string } }) {
+export async function GET(req: Request, { params }: { params: { billboardId: string; storeId: string } }) {
   try {
     const billboardRepository = new BillboardRepository();
-    const billboard = await billboardRepository.findOne({ id: Number(params.billboardId) });
+    const billboard = await billboardRepository.findOne({
+      id: Number(params.billboardId),
+      storeId: Number(params.storeId),
+    });
     if (!billboard) return new NextResponse("Billboard not found", { status: 404 });
 
     return NextResponse.json(billboard);

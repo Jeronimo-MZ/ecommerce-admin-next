@@ -1,9 +1,10 @@
 import { ResultSetHeader, RowDataPacket } from "mysql2";
+
 import { CreateStoreRepository, FindStoreRepository, FindStoresRepository } from "../contracts/repositories/store";
-import { db } from "../lib/mysql";
-import { Store } from "../models/store";
 import { DeleteStoreRepository } from "../contracts/repositories/store/delete-store";
 import { UpdateStoreRepository } from "../contracts/repositories/store/update-store";
+import { db } from "../lib/mysql";
+import { Store } from "../models/store";
 
 export class StoreRepository
   implements

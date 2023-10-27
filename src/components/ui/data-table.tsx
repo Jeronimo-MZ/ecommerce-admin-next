@@ -77,7 +77,7 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                  Sem resultados.
                 </TableCell>
               </TableRow>
             )}
@@ -86,10 +86,10 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-          Previous
+          Anterior
         </Button>
         <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-          Next
+          Próximo
         </Button>
       </div>
     </div>
