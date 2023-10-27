@@ -15,13 +15,18 @@ type AlertModalProps = {
 export const AlertModal = ({ isOpen, onConfirm, loading = false, onClose }: AlertModalProps) => {
   return (
     <BaseClientProvider>
-      <Modal title="Are you sure?" description="This action cannot be undone." isOpen={isOpen} onClose={onClose}>
+      <Modal
+        title="Você tem certeza?"
+        description="Esta acção não pode ser desfeita."
+        isOpen={isOpen}
+        onClose={onClose}
+      >
         <div className="pt-6 space-x-2 flex items-center justify-end w-full">
           <Button disabled={loading} onClick={onClose} variant="outline">
-            Cancel
+            Cancelar
           </Button>
           <Button loading={loading} variant="destructive" onClick={onConfirm}>
-            Confirm
+            Confirmar
           </Button>
         </div>
       </Modal>

@@ -2,8 +2,17 @@ import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { CreateStoreRepository, FindStoreRepository, FindStoresRepository } from "../contracts/repositories/store";
 import { db } from "../lib/mysql";
 import { Store } from "../models/store";
+import { DeleteStoreRepository } from "../contracts/repositories/store/delete-store";
+import { UpdateStoreRepository } from "../contracts/repositories/store/update-store";
 
-export class StoreRepository implements CreateStoreRepository, FindStoreRepository, FindStoresRepository {
+export class StoreRepository
+  implements
+    CreateStoreRepository,
+    FindStoreRepository,
+    FindStoresRepository,
+    DeleteStoreRepository,
+    UpdateStoreRepository
+{
   async create({ currency, name, url, userId }: CreateStoreRepository.Input): Promise<Store> {
     const [insertResult] = await db.execute<ResultSetHeader>(
       `
@@ -13,6 +22,17 @@ export class StoreRepository implements CreateStoreRepository, FindStoreReposito
       [name, url, currency, userId],
     );
     const storeId = insertResult.insertId;
+    return this.findOne({ id: storeId }) as Promise<Store>;
+  }
+
+  async update({ currency, name, storeId, url, userId }: UpdateStoreRepository.Input): Promise<Store> {
+    await db.execute<ResultSetHeader>(
+      `
+              UPDATE LOJA SET loja_nome=?, loja_url=?, loja_moeda_usada=? 
+              WHERE loja_cod=? AND cod_utilizador=?;
+            `,
+      [name, url, currency, storeId, userId],
+    );
     return this.findOne({ id: storeId }) as Promise<Store>;
   }
 
@@ -40,6 +60,9 @@ export class StoreRepository implements CreateStoreRepository, FindStoreReposito
     return rows.map(row => this.mapRowToStore(row as RawStore));
   }
 
+  async delete({ id, userId }: DeleteStoreRepository.Input): Promise<void> {
+    await db.execute("DELETE FROM LOJA WHERE loja_cod=? AND cod_utilizador=?", [id, userId]);
+  }
   private mapRowToStore(row: RawStore): Store {
     return {
       id: row.loja_cod,
