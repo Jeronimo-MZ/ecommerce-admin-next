@@ -78,7 +78,7 @@ export async function GET(req: Request, { params }: { params: { billboardId: str
       id: Number(params.billboardId),
       storeId: Number(params.storeId),
     });
-    if (!billboard) return new NextResponse("Billboard not found", { status: 404 });
+    if (!billboard) return new NextResponse("Capa não encontraada", { status: 404 });
 
     return NextResponse.json(billboard);
   } catch (error) {
