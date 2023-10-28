@@ -21,18 +21,18 @@ export const ColorClient = ({ data }: ColorClientProps) => {
   return (
     <>
       <div className="flex items-center justify-between">
-        <Heading title={`Colors (${data.length})`} description="Manage colors for your store" />
+        <Heading title={`Cores (${data.length})`} description="Faça Gestão de cores da sua loja" />
         <Button className="capitalize" asChild>
           <Link href={`/${params.storeId}/colors/new`}>
             <PlusIcon className="mr-2 w-4 h-4" />
-            Add new
+            Adicionar
           </Link>
         </Button>
       </div>
       <Separator />
       <DataTable columns={columns} data={data} searchKey="name" />
       <Separator />
-      <Heading title="API" description="API calls for colors" />
+      <Heading title="API" description="API de cores" />
       <ApiList entityId="colorId" entityName="colors" />
     </>
   );

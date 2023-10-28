@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 
 import { prisma } from "@/lib/prisma";
 
+import { ColorRepository } from "../../../../../../server/repositories/color-repository";
 import { ColorClient } from "./components/client";
 import { ColorColumn } from "./components/column";
 
@@ -10,16 +11,14 @@ type ColorsPageProps = {
 };
 
 const ColorsPage = async ({ params }: ColorsPageProps) => {
-  const colors = await prisma.color.findMany({
-    where: { storeId: params.storeId },
-    orderBy: { createdAt: "asc" },
-  });
+  const colorRepository = new ColorRepository();
+  const colors = await colorRepository.findMany({ storeId: Number(params.storeId) });
 
   const formattedColors: ColorColumn[] = colors.map(color => ({
     id: color.id,
     name: color.name,
     value: color.value,
-    createdAt: dayjs(color.createdAt).format("MMMM D, YYYY"),
+    createdAt: dayjs(color.createdAt).format("DD/MM/YYYY"),
   }));
   return (
     <div className="flex-col">

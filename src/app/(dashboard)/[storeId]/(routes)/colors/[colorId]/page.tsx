@@ -1,8 +1,7 @@
-import { Color } from "@prisma/client";
 import { notFound } from "next/navigation";
 
-import { prisma } from "@/lib/prisma";
-
+import { Color } from "../../../../../../../server/models/color";
+import { ColorRepository } from "../../../../../../../server/repositories/color-repository";
 import { ColorForm } from "./components/color-form";
 
 type ColorPageProps = {
@@ -15,7 +14,8 @@ type ColorPageProps = {
 const ColorPage = async ({ params }: ColorPageProps) => {
   let colorData: Color | null = null;
   if (params.colorId.toLocaleLowerCase() !== "new") {
-    const colorResult = await prisma.color.findUnique({ where: { id: params.colorId } });
+    const colorRepository = new ColorRepository();
+    const colorResult = await colorRepository.findOne({ id: Number(params.colorId), storeId: Number(params.storeId) });
     if (!colorResult) notFound();
     else {
       colorData = { ...colorResult };

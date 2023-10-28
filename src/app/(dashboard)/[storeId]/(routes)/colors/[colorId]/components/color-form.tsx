@@ -40,10 +40,10 @@ export const ColorForm = ({ initialData }: ColorFormProps) => {
     },
   });
 
-  const title = initialData ? "Edit color" : "Create color";
-  const description = initialData ? "Edit a color" : "Add a new color";
-  const toastMessage = initialData ? "Color updated." : "Color created.";
-  const action = initialData ? "Save changes" : "Create";
+  const title = initialData ? "Editar Cor" : "Criar cor";
+  const description = initialData ? "Editar uma cor" : "Adicionar uma nova cor";
+  const toastMessage = initialData ? "Cor actualizada." : "Cor criada.";
+  const action = initialData ? "Salvar Mudanças" : "Criar";
 
   const handleSubmitForm = async (data: ColorFormData) => {
     try {
@@ -65,7 +65,7 @@ export const ColorForm = ({ initialData }: ColorFormProps) => {
     try {
       setIsDeleting(true);
       await api.delete(`/api/${params.storeId}/colors/${params.colorId}`);
-      toast.success("Color deleted");
+      toast.success("Cor deletada");
       router.push(`/${params.storeId}/colors`);
       router.refresh();
     } catch (error) {
@@ -108,9 +108,9 @@ export const ColorForm = ({ initialData }: ColorFormProps) => {
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label>Nome</Form.Label>
                   <Form.Control>
-                    <Input placeholder="Color name" disabled={form.formState.isSubmitting} {...field} />
+                    <Input placeholder="Nome da cor" disabled={form.formState.isSubmitting} {...field} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -122,7 +122,7 @@ export const ColorForm = ({ initialData }: ColorFormProps) => {
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className="flex items-center gap-2">
-                    Value
+                    Cor
                     <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: field.value }} />
                   </Form.Label>
                   <Form.Control>
