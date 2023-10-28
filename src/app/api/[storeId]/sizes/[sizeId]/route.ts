@@ -1,8 +1,12 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { z } from "zod";
 
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
+
+import { SizeRepository } from "../../../../../../server/repositories/size-repository";
+import { StoreRepository } from "../../../../../../server/repositories/store-repository";
 
 const updateCategoryBodySchema = z.object({
   name: z.string().min(1),
@@ -13,30 +17,28 @@ type Params = { params: { storeId: string; sizeId: string } };
 
 export async function PATCH(req: Request, { params }: Params) {
   try {
-    const { userId } = auth();
-    if (!userId) return new NextResponse("Unauthenticated", { status: 401 });
-
     const body = await req.json();
     const validationResult = updateCategoryBodySchema.safeParse(body);
     if (!validationResult.success) return new NextResponse(validationResult.error.message, { status: 400 });
     const { value, name } = validationResult.data;
 
-    const store = await prisma.store.findUnique({ where: { id: params.storeId, userId } });
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) return new NextResponse("Unauthorized", { status: 401 });
+    const storeRepository = new StoreRepository();
+    const sizeRepository = new SizeRepository();
+
+    const store = await storeRepository.findOne({ id: Number(params.storeId), userId: session.user.id });
     if (!store) return new NextResponse("Forbidden", { status: 403 });
 
-    const size = await prisma.size.findUnique({ where: { id: params.sizeId, storeId: store.id } });
-    if (!size) return new NextResponse("Size not found", { status: 400 });
+    const size = await sizeRepository.findOne({ id: Number(params.sizeId), storeId: store.id });
+    if (!size) return new NextResponse("Tamanho não encontrado", { status: 400 });
 
     if (size.name !== name) {
-      const sizeWithName = await prisma.size.findUnique({ where: { storeId_name: { name, storeId: store.id } } });
-      if (sizeWithName) return new NextResponse("You have another size with this name.", { status: 400 });
+      const sizeWithName = await sizeRepository.findOne({ storeId: store.id, name });
+      if (sizeWithName) return new NextResponse("Você já possui um tamanho com esse nome.", { status: 400 });
     }
 
-    const updatedSize = await prisma.size.update({
-      where: { id: size.id },
-      data: { name, value },
-    });
-
+    const updatedSize = await sizeRepository.update({ sizeId: size.id, name, storeId: store.id, value });
     return NextResponse.json(updatedSize, { status: 200 });
   } catch (error) {
     console.error(`[POST] /:storeId/sizes/:sizeId -> ${error}`);
@@ -46,16 +48,18 @@ export async function PATCH(req: Request, { params }: Params) {
 
 export async function DELETE(req: Request, { params }: Params) {
   try {
-    const { userId } = auth();
-    if (!userId) return new NextResponse("Unauthenticated", { status: 401 });
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) return new NextResponse("Unauthorized", { status: 401 });
+    const storeRepository = new StoreRepository();
+    const sizeRepository = new SizeRepository();
 
-    const store = await prisma.store.findUnique({ where: { id: params.storeId, userId } });
+    const store = await storeRepository.findOne({ id: Number(params.storeId), userId: session.user.id });
     if (!store) return new NextResponse("Forbidden", { status: 403 });
 
-    const size = await prisma.size.findUnique({ where: { id: params.sizeId, storeId: store.id } });
-    if (!size) return new NextResponse("Size not found", { status: 404 });
+    const size = await sizeRepository.findOne({ id: Number(params.sizeId), storeId: store.id });
+    if (!size) return new NextResponse("tamanho não encontrado", { status: 400 });
 
-    await prisma.size.delete({ where: { id: size.id } });
+    await sizeRepository.delete({ id: size.id });
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error(`[DELETE] /:storeId/sizes/:sizeId -> ${error}`);
@@ -65,10 +69,9 @@ export async function DELETE(req: Request, { params }: Params) {
 
 export async function GET(req: Request, { params }: Params) {
   try {
-    const size = await prisma.size.findUnique({
-      where: { id: params.sizeId },
-    });
-    if (!size) return new NextResponse("Size not found", { status: 404 });
+    const sizeRepository = new SizeRepository();
+    const size = await sizeRepository.findOne({ id: Number(params.sizeId), storeId: Number(params.storeId) });
+    if (!size) return new NextResponse("tamanho não encontrado", { status: 400 });
     return NextResponse.json(size);
   } catch (error) {
     console.error(`[GET] /:storeId/sizes/:sizeId -> ${error}`);

@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 
 import { prisma } from "@/lib/prisma";
 
+import { SizeRepository } from "../../../../../../server/repositories/size-repository";
 import { SizeClient } from "./components/client";
 import { SizeColumn } from "./components/column";
 
@@ -10,16 +11,14 @@ type SizesPageProps = {
 };
 
 const SizesPage = async ({ params }: SizesPageProps) => {
-  const sizes = await prisma.size.findMany({
-    where: { storeId: params.storeId },
-    orderBy: { createdAt: "asc" },
-  });
+  const sizeRepository = new SizeRepository();
+  const sizes = await sizeRepository.findMany({ storeId: Number(params.storeId) });
 
   const formattedSizes: SizeColumn[] = sizes.map(size => ({
     id: size.id,
     name: size.name,
     value: size.value,
-    createdAt: dayjs(size.createdAt).format("MMMM D, YYYY"),
+    createdAt: dayjs(size.createdAt).format("DD/MM/YYYY"),
   }));
   return (
     <div className="flex-col">

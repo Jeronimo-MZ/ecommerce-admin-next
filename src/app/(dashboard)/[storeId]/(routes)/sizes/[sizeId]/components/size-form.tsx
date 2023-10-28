@@ -40,10 +40,10 @@ export const SizeForm = ({ initialData }: SizeFormProps) => {
     },
   });
 
-  const title = initialData ? "Edit size" : "Create size";
-  const description = initialData ? "Edit a size" : "Add a new size";
-  const toastMessage = initialData ? "Size updated." : "Size created.";
-  const action = initialData ? "Save changes" : "Create";
+  const title = initialData ? "Editar Tamanho" : "Criar Tamanho";
+  const description = initialData ? "Editar um tamanho" : "Adicionar um novo tamanho";
+  const toastMessage = initialData ? "Tamanho Actualizado." : "Tamanho criado.";
+  const action = initialData ? "Salvar Mudanças" : "Criar";
 
   const handleSubmitForm = async (data: SizeFormData) => {
     try {
@@ -65,7 +65,7 @@ export const SizeForm = ({ initialData }: SizeFormProps) => {
     try {
       setIsDeleting(true);
       await api.delete(`/api/${params.storeId}/sizes/${params.sizeId}`);
-      toast.success("Size deleted");
+      toast.success("Tamanho deletado");
       router.push(`/${params.storeId}/sizes`);
     } catch (error) {
       const errorMessage = handleAxiosError(error);
@@ -107,9 +107,9 @@ export const SizeForm = ({ initialData }: SizeFormProps) => {
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label>Nome</Form.Label>
                   <Form.Control>
-                    <Input placeholder="Size name" disabled={form.formState.isSubmitting} {...field} />
+                    <Input placeholder="Nome do Tamanho" disabled={form.formState.isSubmitting} {...field} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -120,9 +120,9 @@ export const SizeForm = ({ initialData }: SizeFormProps) => {
               name="value"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Value</Form.Label>
+                  <Form.Label>Abreviatura</Form.Label>
                   <Form.Control>
-                    <Input placeholder="Size value" disabled={form.formState.isSubmitting} {...field} />
+                    <Input placeholder="sm, md,..." disabled={form.formState.isSubmitting} {...field} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>

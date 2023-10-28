@@ -1,9 +1,6 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
-
-import { prisma } from "@/lib/prisma";
 
 import { BillboardRepository } from "../../../../../server/repositories/billboard-repository";
 import { CategoryRepository } from "../../../../../server/repositories/category-repository";
@@ -31,10 +28,10 @@ export async function POST(req: Request, { params }: { params: { storeId: string
     const store = await storeRepository.findOne({ id: Number(params.storeId), userId: session.user.id });
     if (!store) return new NextResponse("Forbidden", { status: 403 });
     const billboard = await billboardRepository.findOne({ id: Number(billboardId), storeId: store.id });
-    if (!billboard) return new NextResponse("Billboard not found", { status: 400 });
+    if (!billboard) return new NextResponse("Capa não encontrada", { status: 400 });
 
     const categoryWithName = await categoryRepository.findOne({ name, storeId: store.id });
-    if (categoryWithName) return new NextResponse("You already have a category with this name.", { status: 400 });
+    if (categoryWithName) return new NextResponse("Você já possui uma categoria com esse nome.", { status: 400 });
 
     const createdCategory = await categoryRepository.create({ billboardId: billboard.id, name, storeId: store.id });
     return NextResponse.json(createdCategory, { status: 201 });

@@ -7,7 +7,7 @@ export interface UpdateSizeRepository {
 export namespace UpdateSizeRepository {
   export type Input = {
     name: string;
-    value: number;
+    value: string;
     sizeId: number;
     storeId: number;
   };

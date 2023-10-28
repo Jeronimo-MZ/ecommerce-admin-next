@@ -1,4 +1,3 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
@@ -70,10 +69,9 @@ export async function DELETE(req: Request, { params }: Params) {
 
 export async function GET(req: Request, { params }: Params) {
   try {
-    const color = await prisma.color.findUnique({
-      where: { id: params.colorId },
-    });
-    if (!color) return new NextResponse("Color not found", { status: 404 });
+    const colorRepository = new ColorRepository();
+    const color = await colorRepository.findOne({ id: Number(params.colorId), storeId: Number(params.storeId) });
+    if (!color) return new NextResponse("tamanho não encontrado", { status: 400 });
     return NextResponse.json(color);
   } catch (error) {
     console.error(`[GET] /:storeId/colors/:colorId -> ${error}`);

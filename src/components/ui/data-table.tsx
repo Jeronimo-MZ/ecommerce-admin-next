@@ -44,7 +44,7 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
     <div>
       <div className="flex items-center py-4">
         <Input
-          placeholder="Search..."
+          placeholder="Pesquisar..."
           value={(table.getColumn(searchKey as string)?.getFilterValue() as string) ?? ""}
           onChange={event => table.getColumn(searchKey as string)?.setFilterValue(event.target.value)}
           className="max-w-sm"

@@ -1,8 +1,7 @@
-import { Size } from "@prisma/client";
 import { notFound } from "next/navigation";
 
-import { prisma } from "@/lib/prisma";
-
+import { Size } from "../../../../../../../server/models/size";
+import { SizeRepository } from "../../../../../../../server/repositories/size-repository";
 import { SizeForm } from "./components/size-form";
 
 type SizePageProps = {
@@ -15,7 +14,8 @@ type SizePageProps = {
 const SizePage = async ({ params }: SizePageProps) => {
   let sizeData: Size | null = null;
   if (params.sizeId.toLocaleLowerCase() !== "new") {
-    const sizeResult = await prisma.size.findUnique({ where: { id: params.sizeId } });
+    const sizeRepository = new SizeRepository();
+    const sizeResult = await sizeRepository.findOne({ id: Number(params.sizeId), storeId: Number(params.storeId) });
     if (!sizeResult) notFound();
     else {
       sizeData = { ...sizeResult };

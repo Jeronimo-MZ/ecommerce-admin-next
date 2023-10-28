@@ -23,9 +23,9 @@ export const CellAction = ({ data }: CellActionProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const handleCopy = (id: string) => {
-    navigator.clipboard.writeText(id);
-    toast.success(" ID copied to the clipboard");
+  const handleCopy = (id: number) => {
+    navigator.clipboard.writeText(String(id));
+    toast.success(" ID copiado para a área de transferência");
   };
 
   const handleUpdateClick = () => {
@@ -36,7 +36,7 @@ export const CellAction = ({ data }: CellActionProps) => {
     try {
       setIsDeleting(true);
       await api.delete(`/api/${params.storeId}/sizes/${data.id}`);
-      toast.success("Size deleted");
+      toast.success("Tamanho Deletado");
       router.refresh();
     } catch (error) {
       const errorMessage = handleAxiosError(error);
@@ -58,22 +58,22 @@ export const CellAction = ({ data }: CellActionProps) => {
         <DropdownMenu.Trigger asChild>
           <Button variant="ghost">
             <MoreHorizontalIcon />
-            <span className="sr-only">Open menu</span>
+            <span className="sr-only">Abrir Menu</span>
           </Button>
         </DropdownMenu.Trigger>
         <DropdownMenu.Content align="end">
-          <DropdownMenu.Label>Actions</DropdownMenu.Label>
+          <DropdownMenu.Label>Acções</DropdownMenu.Label>
           <DropdownMenu.Item onClick={handleUpdateClick}>
             <EditIcon className="mr-2 w-4 h-4" />
-            Update
+            Editar
           </DropdownMenu.Item>
           <DropdownMenu.Item onClick={() => handleCopy(data.id)}>
             <CopyIcon className="mr-2 w-4 h-4" />
-            Copy Id
+            Copiar ID
           </DropdownMenu.Item>
           <DropdownMenu.Item onClick={() => setIsDeleteModalOpen(true)}>
             <TrashIcon className="mr-2 w-4 h-4" />
-            Delete
+            Deletar
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Root>
