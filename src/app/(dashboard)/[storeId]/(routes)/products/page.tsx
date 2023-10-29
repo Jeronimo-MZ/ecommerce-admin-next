@@ -1,8 +1,10 @@
 import dayjs from "dayjs";
+import { redirect } from "next/navigation";
 
-import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/utils/format-money";
 
+import { ProductRepository } from "../../../../../../server/repositories/product-repository";
+import { StoreRepository } from "../../../../../../server/repositories/store-repository";
 import { ProductClient } from "./components/client";
 import { ProductColumn } from "./components/column";
 
@@ -11,23 +13,21 @@ type ProductsPageProps = {
 };
 
 const ProductsPage = async ({ params }: ProductsPageProps) => {
-  const products = await prisma.product.findMany({
-    where: { storeId: params.storeId },
-    orderBy: { createdAt: "asc" },
-    include: { category: true, size: true, color: true },
-  });
+  const storeRepository = new StoreRepository();
+  const productRepository = new ProductRepository();
+  const store = await storeRepository.findOne({ id: Number(params.storeId) });
+  if (!store) redirect("/");
+
+  const products = await productRepository.findMany({ storeId: store.id });
 
   const formattedProducts: ProductColumn[] = products.map(product => ({
     id: product.id,
     name: product.name,
-    isFeatured: product.isFeatured,
-    isArchived: product.isArchived,
-    price: formatMoney(product.price.toNumber()),
+    price: formatMoney(product.price, store.currency),
     color: product.color.value,
     size: product.size.name,
     category: product.category.name,
-
-    createdAt: dayjs(product.createdAt).format("MMMM D, YYYY"),
+    createdAt: dayjs(product.createdAt).format("DD/MM/YYYY"),
   }));
   return (
     <div className="flex-col">

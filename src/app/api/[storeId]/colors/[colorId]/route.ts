@@ -3,7 +3,6 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { prisma } from "@/lib/prisma";
 
 import { ColorRepository } from "../../../../../../server/repositories/color-repository";
 import { StoreRepository } from "../../../../../../server/repositories/store-repository";

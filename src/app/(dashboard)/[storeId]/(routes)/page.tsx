@@ -1,5 +1,6 @@
 import { CreditCardIcon, DollarSign, PackageIcon } from "lucide-react";
 import { NextPage } from "next";
+import { redirect } from "next/navigation";
 
 import { getRevenueGraph } from "@/actions/get-revenue-graph";
 import { getSalesCount } from "@/actions/get-sales-count";
@@ -11,14 +12,19 @@ import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import { formatMoney } from "@/utils/format-money";
 
+import { StoreRepository } from "../../../../../server/repositories/store-repository";
+
 type DashboardPageProps = {
   params: { storeId: string };
 };
 
-const DashboardPage = async (props: DashboardPageProps) => {
-  const totalRevenue = await getTotalRevenue(Number(props.params.storeId));
-  const salesCount = await getSalesCount(props.params.storeId);
-  const stockCount = await getStockCount(props.params.storeId);
+const DashboardPage = async ({ params }: DashboardPageProps) => {
+  const storeRepository = new StoreRepository();
+  const store = await storeRepository.findOne({ id: Number(params.storeId) });
+  if (!store) redirect("/");
+  const totalRevenue = await getTotalRevenue(Number(params.storeId));
+  const salesCount = await getSalesCount(params.storeId);
+  const stockCount = await getStockCount(params.storeId);
   return (
     <div className="flex-col">
       <div className="flex-1 space-y-4 p-8 pt-6">
@@ -31,7 +37,7 @@ const DashboardPage = async (props: DashboardPageProps) => {
               <DollarSign className="h-5 w-5 text-muted-foreground" />
             </Card.Header>
             <Card.Content>
-              <div className="text-4xl font-bold">{formatMoney(totalRevenue)}</div>
+              <div className="text-4xl font-bold">{formatMoney(totalRevenue, store.currency)}</div>
             </Card.Content>
           </Card.Root>
           <Card.Root>
@@ -58,7 +64,7 @@ const DashboardPage = async (props: DashboardPageProps) => {
             <Card.Title>Overview</Card.Title>
           </Card.Header>
           <Card.Content className="pl-2">
-            <Overview data={await getRevenueGraph(props.params.storeId)} />
+            <Overview data={await getRevenueGraph(params.storeId)} currency={store.currency} />
           </Card.Content>
         </Card.Root>
       </div>

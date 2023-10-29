@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Category, Color, Product, ProductImage, Size } from "@prisma/client";
 import { Trash } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -11,7 +10,6 @@ import { z } from "zod";
 
 import { AlertModal } from "@/components/modals/alert-modal";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Form } from "@/components/ui/form";
 import { Heading } from "@/components/ui/heading";
 import { ImageUpload } from "@/components/ui/image-upload";
@@ -21,22 +19,26 @@ import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/axios";
 import { handleAxiosError } from "@/utils/handle-axios-error";
 
+import { Category } from "../../../../../../../../server/models/category";
+import { Color } from "../../../../../../../../server/models/color";
+import { Product } from "../../../../../../../../server/models/product";
+import { Size } from "../../../../../../../../server/models/size";
+
 type ProductFormProps = {
-  initialData: (Omit<Product, "price"> & { images: ProductImage[]; price: number }) | null;
+  initialData: Product | null;
   categories: Category[];
   sizes: Size[];
   colors: Color[];
 };
 
 const ProductFormSchema = z.object({
-  name: z.string().min(1, "label is required"),
-  images: z.object({ url: z.string().url() }).array().min(1, "product must have at least one image"),
-  price: z.number().min(0),
-  categoryId: z.string().uuid("category is required"),
-  colorId: z.string().uuid("color is required"),
-  sizeId: z.string().uuid("size is required"),
-  isFeatured: z.boolean().default(false).optional(),
-  isArchived: z.boolean().default(false).optional(),
+  name: z.string().min(1, "Campo obrigatório"),
+  images: z.object({ url: z.string().url() }).array().min(1, "Deve ter pelo menos uma imagem"),
+  price: z.number({ required_error: "Campo Obrigatório" }).min(0),
+  quantityInStock: z.number({ required_error: "Campo Obrigatório" }).min(0),
+  categoryId: z.coerce.number({ required_error: "Campo Obrigatório" }),
+  colorId: z.coerce.number({ required_error: "Campo Obrigatório" }),
+  sizeId: z.coerce.number({ required_error: "Campo Obrigatório" }),
 });
 
 type ProductFormData = z.infer<typeof ProductFormSchema>;
@@ -47,24 +49,21 @@ export const ProductForm = ({ initialData, categories, colors, sizes }: ProductF
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const form = useForm<ProductFormData>({
     resolver: zodResolver(ProductFormSchema),
-    defaultValues: initialData
-      ? { ...initialData }
-      : {
-          images: [],
-          name: "",
-          categoryId: "",
-          colorId: "",
-          price: 0,
-          sizeId: "",
-          isArchived: false,
-          isFeatured: false,
-        },
+    defaultValues: {
+      name: initialData?.name ?? "",
+      images: initialData?.images.map(url => ({ url })) ?? [],
+      price: initialData?.price ?? 0,
+      categoryId: initialData?.category.id ?? undefined,
+      colorId: initialData?.color.id ?? undefined,
+      sizeId: initialData?.size.id ?? undefined,
+      quantityInStock: initialData?.quantityInStock ?? 0,
+    },
   });
 
-  const title = initialData ? "Edit product" : "Create product";
-  const description = initialData ? "Edit a product" : "Add a new product";
-  const toastMessage = initialData ? "Product updated." : "Product created.";
-  const action = initialData ? "Save changes" : "Create";
+  const title = initialData ? "Editar Produto" : "Criar produto";
+  const description = initialData ? "Edit a produto" : "Adicionar um novo produto";
+  const toastMessage = initialData ? "Produto actualizado." : "Produto Criado.";
+  const action = initialData ? "Salvar Mudanças" : "Criar";
 
   const handleSubmitForm = async (data: ProductFormData) => {
     try {
@@ -86,7 +85,7 @@ export const ProductForm = ({ initialData, categories, colors, sizes }: ProductF
     try {
       setIsDeleting(true);
       await api.delete(`/api/${params.storeId}/products/${params.productId}`);
-      toast.success("Product deleted");
+      toast.success("Produto deletado");
       router.push(`/${params.storeId}/products`);
     } catch (error) {
       const errorMessage = handleAxiosError(error);
@@ -127,7 +126,7 @@ export const ProductForm = ({ initialData, categories, colors, sizes }: ProductF
             name="images"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Background Image</Form.Label>
+                <Form.Label>Imagens</Form.Label>
                 <Form.Control>
                   <ImageUpload
                     value={field.value.map(image => image.url)}
@@ -145,9 +144,9 @@ export const ProductForm = ({ initialData, categories, colors, sizes }: ProductF
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label>Nome</Form.Label>
                   <Form.Control>
-                    <Input placeholder="Product Name" disabled={form.formState.isSubmitting} {...field} />
+                    <Input placeholder="Nome do Produto" disabled={form.formState.isSubmitting} {...field} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -158,7 +157,7 @@ export const ProductForm = ({ initialData, categories, colors, sizes }: ProductF
               name="price"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Price</Form.Label>
+                  <Form.Label>Preço</Form.Label>
                   <Form.Control>
                     <Input
                       placeholder="9.99"
@@ -178,21 +177,21 @@ export const ProductForm = ({ initialData, categories, colors, sizes }: ProductF
               name="categoryId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Category</Form.Label>
+                  <Form.Label>Categoria</Form.Label>
                   <Select.Root
                     disabled={form.formState.isSubmitting}
-                    value={field.value}
+                    value={String(field.value)}
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    defaultValue={String(field.value)}
                   >
                     <Form.Control>
                       <Select.Trigger>
-                        <Select.Value defaultValue={field.value} placeholder="Select a Category" />
+                        <Select.Value defaultValue={field.value} placeholder="Seleccione uma Categoria" />
                       </Select.Trigger>
                     </Form.Control>
                     <Select.Content>
                       {categories.map(category => (
-                        <Select.Item key={category.id} value={category.id}>
+                        <Select.Item key={category.id} value={String(category.id)}>
                           {category.name}
                         </Select.Item>
                       ))}
@@ -207,21 +206,21 @@ export const ProductForm = ({ initialData, categories, colors, sizes }: ProductF
               name="sizeId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Size</Form.Label>
+                  <Form.Label>Tamanho</Form.Label>
                   <Select.Root
                     disabled={form.formState.isSubmitting}
-                    value={field.value}
+                    value={String(field.value)}
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    defaultValue={String(field.value)}
                   >
                     <Form.Control>
                       <Select.Trigger>
-                        <Select.Value defaultValue={field.value} placeholder="Select a Size" />
+                        <Select.Value defaultValue={String(field.value)} placeholder="Seleccione um Tamanho" />
                       </Select.Trigger>
                     </Form.Control>
                     <Select.Content>
                       {sizes.map(size => (
-                        <Select.Item key={size.id} value={size.id}>
+                        <Select.Item key={size.id} value={String(size.id)}>
                           {size.name}
                         </Select.Item>
                       ))}
@@ -236,21 +235,21 @@ export const ProductForm = ({ initialData, categories, colors, sizes }: ProductF
               name="colorId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Color</Form.Label>
+                  <Form.Label>Cor</Form.Label>
                   <Select.Root
                     disabled={form.formState.isSubmitting}
-                    value={field.value}
+                    value={String(field.value)}
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    defaultValue={String(field.value)}
                   >
                     <Form.Control>
                       <Select.Trigger>
-                        <Select.Value defaultValue={field.value} placeholder="Select a Category" />
+                        <Select.Value defaultValue={field.value} placeholder="Seleccione uma Cor" />
                       </Select.Trigger>
                     </Form.Control>
                     <Select.Content>
                       {colors.map(color => (
-                        <Select.Item key={color.id} value={color.id}>
+                        <Select.Item key={color.id} value={String(color.id)}>
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: color.value }} />
                             {color.name}
@@ -263,8 +262,28 @@ export const ProductForm = ({ initialData, categories, colors, sizes }: ProductF
                 </Form.Item>
               )}
             />
+            <Form.Field
+              control={form.control}
+              name="quantityInStock"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Quantidade em Stock</Form.Label>
+                  <Form.Control>
+                    <Input
+                      placeholder="10"
+                      type="number"
+                      step={1}
+                      disabled={form.formState.isSubmitting}
+                      {...field}
+                      onChange={event => field.onChange(Number(event.target.value))}
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
           </div>
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
+          {/* <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
             <Form.Field
               control={form.control}
               name="isFeatured"
@@ -295,7 +314,7 @@ export const ProductForm = ({ initialData, categories, colors, sizes }: ProductF
                 </Form.Item>
               )}
             />
-          </div>
+          </div> */}
           <Button type="submit" loading={form.formState.isSubmitting} className="capitalize">
             {action}
           </Button>

@@ -1,7 +1,5 @@
 import dayjs from "dayjs";
 
-import { prisma } from "@/lib/prisma";
-
 import { ColorRepository } from "../../../../../../server/repositories/color-repository";
 import { ColorClient } from "./components/client";
 import { ColorColumn } from "./components/column";

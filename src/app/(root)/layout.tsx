@@ -1,8 +1,6 @@
-import { auth } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
-
-import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
+
 import { StoreRepository } from "../../../server/repositories/store-repository";
 import { authOptions } from "../api/auth/[...nextauth]/route";
 

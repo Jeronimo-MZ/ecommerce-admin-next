@@ -1,11 +1,8 @@
-import { auth } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
-
-import { prisma } from "@/lib/prisma";
-
-import { SettingsForm } from "./components/settings-form";
 import { getServerSession } from "next-auth";
+
 import { StoreRepository } from "../../../../../../server/repositories/store-repository";
+import { SettingsForm } from "./components/settings-form";
 
 type SettingsPageProps = {
   params: { storeId: string };

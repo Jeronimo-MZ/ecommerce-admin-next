@@ -17,23 +17,22 @@ type ProductClientProps = {
 };
 
 export const ProductClient = ({ data }: ProductClientProps) => {
-  const router = useRouter();
   const params = useParams();
   return (
     <>
       <div className="flex items-center justify-between">
-        <Heading title={`Products (${data.length})`} description="Manage products for your store" />
+        <Heading title={`Produtos (${data.length})`} description="Faça a gestão dos produtos da sua loja" />
         <Button className="capitalize" asChild>
           <Link href={`/${params.storeId}/products/new`}>
             <PlusIcon className="mr-2 w-4 h-4" />
-            Add new
+            Adicionar
           </Link>
         </Button>
       </div>
       <Separator />
       <DataTable columns={columns} data={data} searchKey="name" />
       <Separator />
-      <Heading title="API" description="API calls for products" />
+      <Heading title="API" description="API de produtos" />
       <ApiList entityId="productId" entityName="products" />
     </>
   );

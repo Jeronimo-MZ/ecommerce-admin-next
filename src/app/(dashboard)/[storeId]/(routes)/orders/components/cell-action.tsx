@@ -24,7 +24,7 @@ export const CellAction = ({ data }: CellActionProps) => {
 
   const handleCopy = (billboardId: string) => {
     navigator.clipboard.writeText(billboardId);
-    toast.success("Billboard ID copied to the clipboard");
+    toast.success("ID copiado para a área de transferência");
   };
 
   const handleUpdateClick = () => {
@@ -37,7 +37,7 @@ export const CellAction = ({ data }: CellActionProps) => {
         <DropdownMenu.Trigger asChild>
           <Button variant="ghost">
             <MoreHorizontalIcon />
-            <span className="sr-only">Open menu</span>
+            <span className="sr-only">Abrir menu</span>
           </Button>
         </DropdownMenu.Trigger>
         <DropdownMenu.Content align="end">
@@ -45,12 +45,12 @@ export const CellAction = ({ data }: CellActionProps) => {
           <Link href={`/${params.storeId}/orders/${data.id}`}>
             <DropdownMenu.Item>
               <EyeIcon className="mr-2 w-4 h-4" />
-              See More
+              Ver mais
             </DropdownMenu.Item>
           </Link>
           <DropdownMenu.Item onClick={() => handleCopy(data.id)}>
             <CopyIcon className="mr-2 w-4 h-4" />
-            Copy Id
+            Copiar ID
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Root>

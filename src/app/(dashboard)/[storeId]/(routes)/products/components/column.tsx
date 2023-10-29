@@ -7,10 +7,8 @@ import { CellAction } from "./cell-action";
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 export type ProductColumn = {
-  id: string;
+  id: number;
   name: string;
-  isArchived: boolean;
-  isFeatured: boolean;
   price: string;
   color: string;
   size: string;
@@ -19,15 +17,15 @@ export type ProductColumn = {
 };
 
 export const columns: ColumnDef<ProductColumn>[] = [
-  { accessorKey: "name", header: "Name" },
-  { accessorKey: "isArchived", header: "Archived" },
-  { accessorKey: "isFeatured", header: "Featured" },
-  { accessorKey: "price", header: "Price" },
-  { accessorKey: "category", header: "Category" },
-  { accessorKey: "size", header: "Size" },
+  { accessorKey: "name", header: "Nome" },
+  // { accessorKey: "isArchived", header: "Archived" },
+  // { accessorKey: "isFeatured", header: "Featured" },
+  { accessorKey: "price", header: "Preço" },
+  { accessorKey: "category", header: "Categoria" },
+  { accessorKey: "size", header: "Tamanho" },
   {
     accessorKey: "color",
-    header: "Color",
+    header: "Cor",
     cell: ({ row }) => (
       <div className="flex items-center gap-2 uppercase">
         <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: row.original.color }} />

@@ -1,10 +1,8 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { prisma } from "@/lib/prisma";
 
 import { BillboardRepository } from "../../../../../../server/repositories/billboard-repository";
 import { CategoryRepository } from "../../../../../../server/repositories/category-repository";

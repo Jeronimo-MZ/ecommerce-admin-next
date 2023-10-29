@@ -23,9 +23,9 @@ export const CellAction = ({ data }: CellActionProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const handleCopy = (productId: string) => {
-    navigator.clipboard.writeText(productId);
-    toast.success("Product ID copied to the clipboard");
+  const handleCopy = (productId: number) => {
+    navigator.clipboard.writeText(String(productId));
+    toast.success("ID copiado para a área de transferência");
   };
 
   const handleUpdateClick = () => {
@@ -36,7 +36,7 @@ export const CellAction = ({ data }: CellActionProps) => {
     try {
       setIsDeleting(true);
       await api.delete(`/api/${params.storeId}/products/${data.id}`);
-      toast.success("Product deleted");
+      toast.success("Produto deletado");
       router.refresh();
     } catch (error) {
       const errorMessage = handleAxiosError(error);
@@ -58,22 +58,22 @@ export const CellAction = ({ data }: CellActionProps) => {
         <DropdownMenu.Trigger asChild>
           <Button variant="ghost">
             <MoreHorizontalIcon />
-            <span className="sr-only">Open menu</span>
+            <span className="sr-only">Abrir menu</span>
           </Button>
         </DropdownMenu.Trigger>
         <DropdownMenu.Content align="end">
           <DropdownMenu.Label>Actions</DropdownMenu.Label>
           <DropdownMenu.Item onClick={handleUpdateClick}>
             <EditIcon className="mr-2 w-4 h-4" />
-            Update
+            Editar
           </DropdownMenu.Item>
           <DropdownMenu.Item onClick={() => handleCopy(data.id)}>
             <CopyIcon className="mr-2 w-4 h-4" />
-            Copy Id
+            Copiar Id
           </DropdownMenu.Item>
           <DropdownMenu.Item onClick={() => setIsDeleteModalOpen(true)}>
             <TrashIcon className="mr-2 w-4 h-4" />
-            Delete
+            Deletar
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Root>

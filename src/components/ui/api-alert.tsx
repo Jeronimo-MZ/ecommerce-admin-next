@@ -26,7 +26,7 @@ const variantMap: Record<ApiAlertProps["variant"], BadgeProps["variant"]> = {
 export const ApiAlert = ({ description, title, variant }: ApiAlertProps) => {
   const handleCopy = () => {
     navigator.clipboard.writeText(description);
-    toast.success("copied to the clipboard");
+    toast.success("Copiado para a área de trânsferência");
   };
   return (
     <Alert>

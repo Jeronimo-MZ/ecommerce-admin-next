@@ -1,7 +1,5 @@
 import dayjs from "dayjs";
 
-import { prisma } from "@/lib/prisma";
-
 import { SizeRepository } from "../../../../../../server/repositories/size-repository";
 import { SizeClient } from "./components/client";
 import { SizeColumn } from "./components/column";
