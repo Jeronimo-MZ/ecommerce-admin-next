@@ -10,7 +10,7 @@ import { StoreRepository } from "../../../../../../server/repositories/store-rep
 const updateProductBodySchema = z.object({
   name: z.string().min(1, "Campo obrigatório"),
   images: z.object({ url: z.string().url() }).array().min(1, "Deve ter pelo menos uma imagem"),
-  price: z.number({ required_error: "Campo Obrigatório" }).min(0),
+  priceInCents: z.number({ required_error: "Campo Obrigatório" }).min(0),
   quantityInStock: z.number({ required_error: "Campo Obrigatório" }).min(0),
   categoryId: z.coerce.number({ required_error: "Campo Obrigatório" }),
   colorId: z.coerce.number({ required_error: "Campo Obrigatório" }),
@@ -24,7 +24,7 @@ export async function PATCH(req: Request, { params }: Params) {
     const body = await req.json();
     const validationResult = updateProductBodySchema.safeParse(body);
     if (!validationResult.success) return new NextResponse(validationResult.error.message, { status: 400 });
-    const { categoryId, colorId, images, name, price, quantityInStock, sizeId } = validationResult.data;
+    const { categoryId, colorId, images, name, priceInCents, quantityInStock, sizeId } = validationResult.data;
 
     const session = await getServerSession(authOptions);
     if (!session || !session.user) return new NextResponse("Unauthorized", { status: 401 });
@@ -48,7 +48,7 @@ export async function PATCH(req: Request, { params }: Params) {
       categoryId,
       colorId,
       name,
-      price,
+      price: priceInCents,
       quantityInStock,
       sizeId,
       storeId: store.id,

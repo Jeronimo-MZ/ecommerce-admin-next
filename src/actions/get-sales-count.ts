@@ -1,7 +1,8 @@
 import { RowDataPacket } from "mysql2";
+
 import { db } from "../../server/lib/mysql";
 
-export async function getSalesCount(storeId: string): Promise<number> {
+export async function getSalesCount(storeId: number): Promise<number> {
   const [result] = await db.query<RowDataPacket[]>(
     `
     SELECT COUNT(*) as stock

@@ -23,7 +23,7 @@ const ProductsPage = async ({ params }: ProductsPageProps) => {
   const formattedProducts: ProductColumn[] = products.map(product => ({
     id: product.id,
     name: product.name,
-    price: formatMoney(product.price, store.currency),
+    price: formatMoney(product.price / 100, store.currency),
     color: product.color.value,
     size: product.size.name,
     category: product.category.name,

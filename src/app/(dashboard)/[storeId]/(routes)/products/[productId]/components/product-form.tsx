@@ -67,11 +67,12 @@ export const ProductForm = ({ initialData, categories, colors, sizes }: ProductF
 
   const handleSubmitForm = async (data: ProductFormData) => {
     try {
+      const priceInCents = data.price * 100;
       if (initialData) {
-        await api.patch(`/api/${params.storeId}/products/${params.productId}`, data);
+        await api.patch(`/api/${params.storeId}/products/${params.productId}`, { ...data, priceInCents });
         router.refresh();
       } else {
-        await api.post(`/api/${params.storeId}/products`, data);
+        await api.post(`/api/${params.storeId}/products`, { ...data, priceInCents });
         router.push(`/${params.storeId}/products`);
       }
       toast.success(toastMessage);

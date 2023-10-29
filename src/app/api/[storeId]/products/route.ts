@@ -9,7 +9,7 @@ import { authOptions } from "../../auth/[...nextauth]/route";
 const bodySchema = z.object({
   name: z.string().min(1, "Campo obrigatório"),
   images: z.object({ url: z.string().url() }).array().min(1, "Deve ter pelo menos uma imagem"),
-  price: z.number({ required_error: "Campo Obrigatório" }).min(0),
+  priceInCents: z.number({ required_error: "Campo Obrigatório" }).min(0),
   categoryId: z.number({ required_error: "Campo Obrigatório" }),
   colorId: z.number({ required_error: "Campo Obrigatório" }),
   sizeId: z.number({ required_error: "Campo Obrigatório" }),
@@ -21,7 +21,7 @@ export async function POST(req: Request, { params }: { params: { storeId: string
     const body = await req.json();
     const validationResult = bodySchema.safeParse(body);
     if (!validationResult.success) return new NextResponse(validationResult.error.message, { status: 400 });
-    const { categoryId, colorId, images, name, price, sizeId, quantityInStock } = validationResult.data;
+    const { categoryId, colorId, images, name, priceInCents, sizeId, quantityInStock } = validationResult.data;
 
     const session = await getServerSession(authOptions);
     if (!session || !session.user) return new NextResponse("Unauthorized", { status: 401 });
@@ -37,7 +37,7 @@ export async function POST(req: Request, { params }: { params: { storeId: string
     // TODO: Validate data, currently relying on database relations validation
     const createdProduct = await productRepository.create({
       name,
-      price,
+      price: priceInCents,
       categoryId,
       colorId,
       quantityInStock,

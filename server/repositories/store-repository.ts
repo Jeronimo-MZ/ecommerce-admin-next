@@ -1,4 +1,5 @@
 import { ResultSetHeader, RowDataPacket } from "mysql2";
+import { PoolConnection } from "mysql2/promise";
 
 import { CreateStoreRepository, FindStoreRepository, FindStoresRepository } from "../contracts/repositories/store";
 import { DeleteStoreRepository } from "../contracts/repositories/store/delete-store";
@@ -38,22 +39,30 @@ export class StoreRepository
   }
 
   async findOne(input: FindStoreRepository.Input): Promise<Store | null> {
-    let query = "SELECT * FROM LOJA WHERE ";
-    const queryParams: any[] = [];
-    if (input.id && input.userId) {
-      query += " loja_cod = ?  AND cod_utilizador=?;";
-      queryParams.push(input.id, input.userId);
-    } else if (input.id) {
-      query += " loja_cod = ?;";
-      queryParams.push(input.id);
-    } else if (input.name) {
-      query += " loja_nome LIKE ? AND cod_utilizador=?;";
-      queryParams.push(input.name, input.userId);
+    let connection: PoolConnection | undefined;
+    try {
+      connection = await db.getConnection();
+      let query = "SELECT * FROM LOJA WHERE ";
+      const queryParams: any[] = [];
+      if (input.id && input.userId) {
+        query += " loja_cod = ?  AND cod_utilizador=?;";
+        queryParams.push(input.id, input.userId);
+      } else if (input.id) {
+        query += " loja_cod = ?;";
+        queryParams.push(input.id);
+      } else if (input.name) {
+        query += " loja_nome LIKE ? AND cod_utilizador=?;";
+        queryParams.push(input.name, input.userId);
+      }
+      const [rows] = await db.query<RowDataPacket[]>(query, queryParams);
+      if (rows.length <= 0) return null;
+      const rawStore = rows[0] as RawStore;
+      return this.mapRowToStore(rawStore);
+    } finally {
+      if (connection) {
+        connection.release();
+      }
     }
-    const [rows] = await db.query<RowDataPacket[]>(query, queryParams);
-    if (rows.length <= 0) return null;
-    const rawStore = rows[0] as RawStore;
-    return this.mapRowToStore(rawStore);
   }
 
   async findMany({ userId }: FindStoresRepository.Input): Promise<Store[]> {

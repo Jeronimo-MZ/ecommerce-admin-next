@@ -14,11 +14,11 @@ type OrderClientProps = {
 export const OrderClient = ({ data }: OrderClientProps) => {
   return (
     <>
-      <Heading title={`Orders (${data.length})`} description="Manage orders for your store" />
+      <Heading title={`Pedidos (${data.length})`} description="Faça gestão dos pedidos da sua Loja" />
       <Separator />
-      <DataTable columns={columns} data={data} searchKey="products" />
+      <DataTable columns={columns} data={data} searchKey="customerEmail" />
       <Separator />
-      <Heading title="API" description="API calls for orders" />
+      <Heading title="API" description="API de Pedidos" />
       <ApiList entityId="orderId" entityName="orders" />
     </>
   );

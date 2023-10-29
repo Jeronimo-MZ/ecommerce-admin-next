@@ -1,8 +1,11 @@
 import dayjs from "dayjs";
+import { redirect } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/utils/format-money";
 
+import { OrderRepository } from "../../../../../../server/repositories/order-repository";
+import { StoreRepository } from "../../../../../../server/repositories/store-repository";
 import { OrderClient } from "./components/client";
 import { OrderColumn } from "./components/column";
 
@@ -11,24 +14,21 @@ type OrdersPageProps = {
 };
 
 const OrdersPage = async ({ params }: OrdersPageProps) => {
-  const orders = await prisma.order.findMany({
-    where: { storeId: params.storeId },
-    orderBy: { createdAt: "asc" },
-    include: { orderItems: { include: { product: true } } },
-  });
+  const orderRepository = new OrderRepository();
+  const storeRepository = new StoreRepository();
+  const store = await storeRepository.findOne({ id: Number(params.storeId) });
+  if (!store) redirect("/");
 
+  const orders = await orderRepository.findMany({ storeId: store.id });
   const formattedOrders: OrderColumn[] = orders.map(order => ({
     id: order.id,
-    phone: order.phone ?? "",
-    address: order.address ?? "",
-    products: order.orderItems.map(item => item.product.name).join(", "),
-    totalPrice: formatMoney(
-      order.orderItems.reduce((total, item) => {
-        return total + item.quantity * item.unitPrice.toNumber();
-      }, 0),
-    ),
-    isPaid: !!order.paidAt,
-    createdAt: dayjs(order.createdAt).format("MMMM D, YYYY"),
+    status: order.status,
+    customerName: order.customer?.name ?? "",
+    totalPrice: formatMoney(order.totalInCents / 100, store.currency),
+    customerEmail: order.customer?.email ?? "",
+    shippingAddress: order.shippingAddress ?? "",
+    paymentDate: order.paymentDate ? dayjs(order.paymentDate).format("DD/MM/YYYY") : "",
+    createdAt: dayjs(order.createdAt).format("DD/MM/YYYY"),
   }));
   return (
     <div className="flex-col">

@@ -94,28 +94,29 @@ CREATE TABLE FOTO_PRODUTO (
 
 
 CREATE TABLE CLIENTE (
-    cli_email VARCHAR(255) PRIMARY KEY,
+    cli_cod  INTEGER PRIMARY KEY AUTO_INCREMENT,
+    cli_email VARCHAR(255),
     cli_nome VARCHAR(255) NOT NULL,
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
     cod_loja INTEGER NOT NULL,
+    CONSTRAINT unique_order_constraint UNIQUE (cod_loja, cli_email),
     FOREIGN KEY (cod_loja) REFERENCES LOJA(loja_cod)
 );
 
 CREATE TABLE PEDIDO (
     ped_cod INTEGER PRIMARY KEY AUTO_INCREMENT,
     ped_status VARCHAR(255) NOT NULL,
-    ped_endereco_entrega VARCHAR(255) NOT NULL,
+    ped_endereco_entrega VARCHAR(255),
     ped_cod_transac VARCHAR(255),
     ped_data_pagamento TIMESTAMP,
     -- ped_data_pedido DATE NOT NULL, é a data de criacao
-    email_cliente VARCHAR(255) NOT NULL,
+    cod_cliente INTEGER,
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
     cod_loja INTEGER NOT NULL,
     FOREIGN KEY (cod_loja) REFERENCES LOJA(loja_cod),
-    FOREIGN KEY (email_cliente) REFERENCES CLIENTE(cli_email)
-    
+    FOREIGN KEY (cod_cliente) REFERENCES CLIENTE(cli_cod)
 );
 
 CREATE TABLE ITEM_PEDIDO (

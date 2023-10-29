@@ -22,9 +22,9 @@ const DashboardPage = async ({ params }: DashboardPageProps) => {
   const storeRepository = new StoreRepository();
   const store = await storeRepository.findOne({ id: Number(params.storeId) });
   if (!store) redirect("/");
-  const totalRevenue = await getTotalRevenue(Number(params.storeId));
-  const salesCount = await getSalesCount(params.storeId);
-  const stockCount = await getStockCount(params.storeId);
+  const totalRevenue = await getTotalRevenue(store.id);
+  const salesCount = await getSalesCount(store.id);
+  const stockCount = await getStockCount(store.id);
   return (
     <div className="flex-col">
       <div className="flex-1 space-y-4 p-8 pt-6">
@@ -37,7 +37,7 @@ const DashboardPage = async ({ params }: DashboardPageProps) => {
               <DollarSign className="h-5 w-5 text-muted-foreground" />
             </Card.Header>
             <Card.Content>
-              <div className="text-4xl font-bold">{formatMoney(totalRevenue, store.currency)}</div>
+              <div className="text-4xl font-bold">{formatMoney(totalRevenue / 100, store.currency)}</div>
             </Card.Content>
           </Card.Root>
           <Card.Root>
@@ -64,7 +64,7 @@ const DashboardPage = async ({ params }: DashboardPageProps) => {
             <Card.Title>Overview</Card.Title>
           </Card.Header>
           <Card.Content className="pl-2">
-            <Overview data={await getRevenueGraph(params.storeId)} currency={store.currency} />
+            <Overview data={await getRevenueGraph(store.id, new Date().getFullYear())} currency={store.currency} />
           </Card.Content>
         </Card.Root>
       </div>

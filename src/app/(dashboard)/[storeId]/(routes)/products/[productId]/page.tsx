@@ -25,7 +25,7 @@ const ProductPage = async ({ params }: ProductPageProps) => {
     if (!productResult) {
       notFound();
     } else {
-      productData = { ...productResult };
+      productData = { ...productResult, price: productResult.price / 100 };
     }
   }
 
