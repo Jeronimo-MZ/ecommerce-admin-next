@@ -111,11 +111,14 @@ export class ProductRepository
           CT.cat_nome as categoria, 
           TM.tam_nome as tamanho, TM.tam_abreviatura, 
           COR.cor_nome as cor, COR.cor_codigo_hexadecimal, 
-          CT.cat_nome as categoria
+          CT.cat_nome as categoria,
+          FP.ft_url_foto
       FROM PRODUTO PR
       JOIN CATEGORIA CT ON CT.cat_cod=PR.cod_categoria
       JOIN TAMANHO TM ON TM.tam_cod=PR.cod_tamanho
       JOIN COR ON COR.cor_cod=PR.cod_cor
+      LEFT JOIN FOTO_PRODUTO FP ON FP.cod_produto = PR.produto_cod
+
       WHERE PR.cod_loja=?
     `;
     const queryParams = [storeId];
@@ -139,11 +142,61 @@ export class ProductRepository
       query += " AND PR.produto_quantidade_stock > 0";
     }
 
-    query += "ORDER BY data_criacao DESC;";
+    query += " ORDER BY data_criacao DESC;";
 
     const [rows] = await db.query<RowDataPacket[]>(query, queryParams);
-    const products = rows as RawProduct[];
+    const productsMap = new Map<number, RawProduct & { images: string[] }>();
+
+    for (const rawProduct of rows) {
+      const productId = rawProduct.produto_cod as number;
+
+      if (!productsMap.has(productId)) {
+        productsMap.set(productId, {
+          ...(rawProduct as RawProduct),
+          images: [] as string[], // Initialize images array
+        });
+      }
+
+      // Add image URL to the product's images array
+      if (rawProduct.ft_url_foto) {
+        productsMap.get(productId)?.images.push(rawProduct.ft_url_foto);
+      }
+    }
+
+    // Convert the map values to an array
+    const products = Array.from(productsMap.values());
     return products.map(rawProduct => ({
+      id: rawProduct.produto_cod,
+      name: rawProduct.produto_nome,
+      category: { id: rawProduct.cod_categoria, name: rawProduct.categoria },
+      color: { id: rawProduct.cod_cor, name: rawProduct.cor, value: rawProduct.cor_codigo_hexadecimal },
+      price: rawProduct.produto_preco,
+      quantityInStock: rawProduct.produto_quantidade_stock,
+      size: { id: rawProduct.cod_tamanho, name: rawProduct.tamanho, value: rawProduct.tam_abreviatura },
+      images: rawProduct.images,
+      storeId: rawProduct.cod_loja,
+      createdAt: rawProduct.data_criacao,
+      updatedAt: rawProduct.data_atualizacao,
+    }));
+  }
+
+  async findManyByIds(ids: number[], storeId: number): Promise<Omit<Product, "images">[]> {
+    let query = `
+      SELECT 
+          PR.*,
+          CT.cat_nome as categoria, 
+          TM.tam_nome as tamanho, TM.tam_abreviatura, 
+          COR.cor_nome as cor, COR.cor_codigo_hexadecimal, 
+          CT.cat_nome as categoria
+      FROM PRODUTO PR
+      JOIN CATEGORIA CT ON CT.cat_cod=PR.cod_categoria
+      JOIN TAMANHO TM ON TM.tam_cod=PR.cod_tamanho
+      JOIN COR ON COR.cor_cod=PR.cod_cor
+      WHERE PR.cod_loja=? AND PR.produto_cod IN ?;
+    `;
+
+    const [rows] = await db.query<RowDataPacket[]>(query, [storeId, [ids]]);
+    return rows.map(rawProduct => ({
       id: rawProduct.produto_cod,
       name: rawProduct.produto_nome,
       category: { id: rawProduct.cod_categoria, name: rawProduct.categoria },

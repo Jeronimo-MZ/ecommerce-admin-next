@@ -2,8 +2,11 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { z } from "zod";
 
-import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
+
+import { OrderRepository } from "../../../../../server/repositories/order-repository";
+import { ProductRepository } from "../../../../../server/repositories/product-repository";
+import { StoreRepository } from "../../../../../server/repositories/store-repository";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -24,7 +27,14 @@ type POSTParameters = {
 };
 
 const createCheckoutSessionSchema = z.object({
-  productIds: z.array(z.string().uuid("product is required")).min(1, "Orders must have at least one product"),
+  products: z
+    .array(
+      z.object({
+        id: z.number(),
+        quantity: z.number().min(1, "deve ter pelo menos um item para cada produto"),
+      }),
+    )
+    .min(1, "Pedidos devem ter pelo menos um produto"),
 });
 
 export async function POST(req: Request, { params }: POSTParameters) {
@@ -35,44 +45,70 @@ export async function POST(req: Request, { params }: POSTParameters) {
         status: 400,
       });
     }
-    const { productIds } = validationResult.data;
-    const products = await prisma.product.findMany({ where: { id: { in: productIds } } });
-    const DEFAULT_QUANTITY = 1;
-    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = products.map(product => ({
-      quantity: DEFAULT_QUANTITY,
-      price_data: {
-        currency: "USD",
-        product_data: { name: product.name },
-        unit_amount: product.price.toNumber() * 100,
-      },
-    }));
-    const order = await prisma.order.create({
-      data: {
-        storeId: params.storeId,
-        paidAt: null,
-        orderItems: {
-          create: products.map(product => ({
-            productId: product.id,
-            quantity: DEFAULT_QUANTITY,
-            unitPrice: product.price,
-          })),
+    const productRepository = new ProductRepository();
+    const storeRepository = new StoreRepository();
+    const orderRepository = new OrderRepository();
+    const store = await storeRepository.findOne({ id: Number(params.storeId) });
+    if (!store) return new NextResponse("Forbidden", { status: 403 });
+
+    const { products: cartItems } = validationResult.data;
+    const products = await productRepository.findManyByIds(
+      cartItems.map(item => item.id),
+      store.id,
+    );
+    if (products.length !== cartItems.length) {
+      return new NextResponse("Ocorreu um erro ao buscar os produtos selecionados", {
+        status: 400,
+      });
+    }
+
+    for (const product of products) {
+      const cartItem = cartItems.find(item => item.id === product.id);
+      if (!cartItem) {
+        return new NextResponse("Ocorreu um erro ao buscar os produtos selecionados", {
+          status: 400,
+        });
+      }
+      if (product.quantityInStock < cartItem.quantity) {
+        return new NextResponse(
+          `O produto '${product.name}' só possui  ${product.quantityInStock} unidade(s) em stock`,
+          {
+            status: 400,
+          },
+        );
+      }
+    }
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = products.map(product => {
+      const cartItem = cartItems.find(item => item.id === product.id);
+      return {
+        quantity: cartItem?.quantity,
+        price_data: {
+          currency: store.currency,
+          product_data: { name: product.name },
+          unit_amount: product.price,
         },
-      },
+      };
+    });
+    const order = await orderRepository.create({
+      storeId: store.id,
+      items: cartItems.map(item => ({ productId: item.id, quantity: item.quantity })),
     });
     const session = await stripe.checkout.sessions.create({
       line_items: lineItems,
       mode: "payment",
       billing_address_collection: "required",
-      phone_number_collection: { enabled: true },
-      success_url: `${process.env.FRONT_END_URL}/cart?success=1`,
-      cancel_url: `${process.env.FRONT_END_URL}/cart?canceled=1`,
+      success_url: `${store.url}/cart?success=1`,
+      cancel_url: `${store.url}/cart?canceled=1`,
       metadata: {
         orderId: order.id,
+        storeId: store.id,
       },
     });
+    console.log({ url: session.url });
     return NextResponse.json({ url: session.url }, { status: 200, headers: { ...corsHeaders } });
   } catch (error) {
     console.error(`[POST] /:storeId/checkout -> ${error}`);
+    console.error(error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

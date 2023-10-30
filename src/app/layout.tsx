@@ -3,10 +3,9 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
+import { AuthProvider } from "@/components/auth-provider";
 import { ModalProvider } from "@/providers/modal-provider";
 import { ToastProvider } from "@/providers/toast-provider";
-import { AuthProvider } from "@/components/auth-provider";
-import { getServerSession } from "next-auth";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,9 +15,8 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = await getServerSession();
   return (
-    <AuthProvider session={session}>
+    <AuthProvider>
       <html lang="en">
         <body className={inter.className}>
           <ModalProvider />

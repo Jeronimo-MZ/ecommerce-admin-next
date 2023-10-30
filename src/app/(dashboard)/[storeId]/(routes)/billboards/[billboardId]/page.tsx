@@ -15,7 +15,10 @@ const BillboardPage = async ({ params }: BillboardPageProps) => {
   let billboardData: Billboard | null = null;
   if (params.billboardId.toLocaleLowerCase() !== "new") {
     const billboardRepository = new BillboardRepository();
-    const billboardResult = await billboardRepository.findOne({ id: Number(params.billboardId) });
+    const billboardResult = await billboardRepository.findOne({
+      id: Number(params.billboardId),
+      storeId: Number(params.storeId),
+    });
     if (!billboardResult) {
       notFound();
     } else {

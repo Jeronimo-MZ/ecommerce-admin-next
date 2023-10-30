@@ -58,3 +58,14 @@ export async function DELETE(req: Request, { params }: { params: { storeId: stri
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
+
+export async function GET(req: Request, { params }: { params: { storeId: string } }) {
+  try {
+    const storeRepository = new StoreRepository();
+    const store = await storeRepository.findOne({ id: Number(params.storeId) });
+    return NextResponse.json(store, { status: 200 });
+  } catch (error) {
+    console.error(`[GET] /stores/:storeId -> ${error}`);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
+}

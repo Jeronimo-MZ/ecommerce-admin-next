@@ -14,12 +14,13 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Heading } from "@/components/ui/heading";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { useOrigin } from "@/hooks/use-origin";
 import { api } from "@/lib/axios";
 import { handleAxiosError } from "@/utils/handle-axios-error";
+
 import { Store } from "../../../../../../../server/models/store";
-import { Select } from "@/components/ui/select";
 
 type SettingsForm = {
   initialData: Store;

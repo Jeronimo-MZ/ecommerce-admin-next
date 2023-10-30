@@ -61,7 +61,7 @@ export const ProductForm = ({ initialData, categories, colors, sizes }: ProductF
   });
 
   const title = initialData ? "Editar Produto" : "Criar produto";
-  const description = initialData ? "Edit a produto" : "Adicionar um novo produto";
+  const description = initialData ? "Editar um produto" : "Adicionar um novo produto";
   const toastMessage = initialData ? "Produto actualizado." : "Produto Criado.";
   const action = initialData ? "Salvar Mudanças" : "Criar";
 

@@ -2,8 +2,10 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
-import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
+
+import { OrderRepository } from "../../../../server/repositories/order-repository";
+import { StoreRepository } from "../../../../server/repositories/store-repository";
 
 export async function POST(req: Request) {
   const body = await req.text();
@@ -18,46 +20,39 @@ export async function POST(req: Request) {
     return new NextResponse(`Webhook Error: ${error.message}`, { status: 400 });
   }
 
-  const session = event.data.object as Stripe.Checkout.Session;
-  const address = session?.customer_details?.address;
-
-  const addressComponents = [
-    address?.line1,
-    address?.line2,
-    address?.city,
-    address?.state,
-    address?.postal_code,
-    address?.country,
-  ];
-
-  const addressString = addressComponents.filter(c => c !== null).join(", ");
-
   if (event.type === "checkout.session.completed") {
-    const order = await prisma.order.update({
-      where: {
-        id: session?.metadata?.orderId,
-      },
-      data: {
-        paidAt: new Date(),
-        address: addressString,
-        phone: session?.customer_details?.phone || "",
-      },
-      include: {
-        orderItems: true,
-      },
-    });
+    const session = event.data.object as Stripe.Checkout.Session;
+    const customerEmail = String(session.customer_details?.email);
+    const customerName = String(session.customer_details?.name);
+    const paymentId = String(session.id);
 
-    const productIds = order.orderItems.map(orderItem => orderItem.productId);
+    const address = session?.customer_details?.address;
 
-    await prisma.product.updateMany({
-      where: {
-        id: {
-          in: [...productIds],
-        },
-      },
-      data: {
-        isArchived: true,
-      },
+    const addressComponents = [
+      address?.line1,
+      address?.line2,
+      address?.city,
+      address?.state,
+      address?.postal_code,
+      address?.country,
+    ];
+
+    const shippingAddress = addressComponents.filter(c => c !== null).join(", ");
+
+    const orderRepository = new OrderRepository();
+    const storeRepository = new StoreRepository();
+    const store = await storeRepository.findOne({ id: Number(session.metadata!.storeId) });
+    if (!store) {
+      return new NextResponse(`Webhook Error: cant locate store with id ${session.metadata?.storeId}`, { status: 400 });
+    }
+    await orderRepository.pay({
+      id: Number(session.metadata!.orderId),
+      customerEmail,
+      customerName,
+      paymentDate: new Date(),
+      paymentId, // using session id for now
+      shippingAddress,
+      storeId: store.id,
     });
   }
 

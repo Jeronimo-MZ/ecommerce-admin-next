@@ -1,11 +1,13 @@
 import { redirect } from "next/navigation";
-
 import { getServerSession } from "next-auth";
+
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { BaseClientProvider } from "@/providers/base-client-provider";
+
 import { StoreRepository } from "../../server/repositories/store-repository";
 import { MainNav } from "./main-nav";
 import { StoreSwitcher } from "./store-switcher";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { BaseClientProvider } from "@/providers/base-client-provider";
+import { UserButton } from "./user-button";
 
 export const Navbar = async () => {
   const session = await getServerSession(authOptions);
@@ -19,7 +21,9 @@ export const Navbar = async () => {
           <StoreSwitcher items={stores} />
         </BaseClientProvider>
         <MainNav className="mx-6" />
-        <div className="ml-auto flex items-center space-x-4">{/* <UserButton /> */}</div>
+        <div className="ml-auto flex items-center space-x-4">
+          <UserButton />
+        </div>
       </div>
     </div>
   );

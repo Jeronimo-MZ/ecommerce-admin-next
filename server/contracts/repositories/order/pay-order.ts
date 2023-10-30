@@ -1,7 +1,7 @@
 import { OrderWithItems } from "../../../models/order";
 
 export interface PayOrderRepository {
-  pay(input: PayOrderRepository.Input): Promise<OrderWithItems>;
+  pay(input: PayOrderRepository.Input): Promise<void>;
 }
 
 export namespace PayOrderRepository {

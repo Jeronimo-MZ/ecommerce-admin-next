@@ -8,8 +8,8 @@ import { Popover } from "@/components/ui/popover";
 import { useStoreModal } from "@/hooks/use-store-modal";
 import { cn } from "@/lib/utils";
 
-import { Command } from "./ui/command";
 import { Store } from "../../server/models/store";
+import { Command } from "./ui/command";
 
 type PopoverTriggerProps = ComponentPropsWithoutRef<typeof Popover.Trigger>;
 
@@ -39,7 +39,7 @@ export const StoreSwitcher = ({ className, items = [] }: StoreSwitcherProps) => 
           size="sm"
           role="combobox"
           aria-expanded={popoverOpen}
-          aria-label="Select a store"
+          aria-label="Seleccione uma loja"
           className={cn("w-[200px]", className)}
         >
           <StoreIcon className="mr-2 h-4 w-4" />
@@ -50,9 +50,9 @@ export const StoreSwitcher = ({ className, items = [] }: StoreSwitcherProps) => 
       <Popover.Content className="w-[200px] p-0">
         <Command.Root>
           <Command.List>
-            <Command.Input placeholder="Search Store..." />
-            <Command.Empty>No store found.</Command.Empty>
-            <Command.Group heading="Stores">
+            <Command.Input placeholder="Procurar Loja..." />
+            <Command.Empty>Nenhuma loja encontrada.</Command.Empty>
+            <Command.Group heading="Lojas">
               {formattedItems.map(item => (
                 <Command.Item key={item.value} onSelect={() => onStoreSelect(item)} className="text-sm cursor-pointer">
                   <StoreIcon className="mr-2 h-4 w-4" />
@@ -75,7 +75,7 @@ export const StoreSwitcher = ({ className, items = [] }: StoreSwitcherProps) => 
                 className="cursor-pointer"
               >
                 <PlusCircle className="mr-2 w-5 h-5" />
-                Create Store
+                Criar Loja
               </Command.Item>
             </Command.Group>
           </Command.List>

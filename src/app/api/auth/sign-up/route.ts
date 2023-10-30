@@ -1,8 +1,8 @@
+import { hash } from "bcrypt";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { UserRepository } from "../../../../../server/repositories/user-repository";
-import { hash } from "bcrypt";
 
 const bodySchema = z.object({
   name: z.string(),

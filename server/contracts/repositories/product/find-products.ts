@@ -12,5 +12,5 @@ export namespace FindProductsRepository {
     colorId?: number;
     inStockOnly?: boolean;
   };
-  export type Output = Omit<Product, "images">[];
+  export type Output = Product[];
 }

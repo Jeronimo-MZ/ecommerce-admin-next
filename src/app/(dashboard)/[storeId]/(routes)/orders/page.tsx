@@ -1,7 +1,6 @@
 import dayjs from "dayjs";
 import { redirect } from "next/navigation";
 
-import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/utils/format-money";
 
 import { OrderRepository } from "../../../../../../server/repositories/order-repository";

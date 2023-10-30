@@ -68,9 +68,9 @@ export class OrderRepository
             PED.data_criacao AS createdAt,
             PED.data_atualizacao AS updatedAt,
             PED.cod_loja AS storeId,
-            CLI.cli_cod AS 'customer.id',
-            CLI.cli_nome AS 'customer.name',
-            CLI.cli_email AS 'customer.email'
+            CLI.cli_cod AS customerId,
+            CLI.cli_nome AS customerName,
+            CLI.cli_email AS customerEmail
         FROM PEDIDO PED
         LEFT JOIN CLIENTE CLI ON PED.cod_cliente = CLI.cli_cod
         LEFT JOIN ITEM_PEDIDO IP ON PED.ped_cod = IP.cod_pedido
@@ -84,7 +84,7 @@ export class OrderRepository
       return null;
     }
 
-    const rawOrder = orderRows[0] as Order;
+    const rawOrder = orderRows[0];
     const [orderItemRows] = await db.query<RowDataPacket[]>(
       `
           SELECT
@@ -108,7 +108,23 @@ export class OrderRepository
       quantity: rawOrderItem.quantity,
     }));
 
-    return { ...rawOrder, items: orderItems };
+    return {
+      id: rawOrder.id,
+      status: rawOrder.status,
+      shippingAddress: rawOrder.shippingAddress,
+      paymentId: rawOrder.paymentId,
+      paymentDate: rawOrder.paymentDate,
+      totalInCents: rawOrder.totalInCents,
+      createdAt: rawOrder.createdAt,
+      updatedAt: rawOrder.updatedAt,
+      storeId: rawOrder.storeId,
+      customer: {
+        id: rawOrder.customerId,
+        name: rawOrder.customerName,
+        email: rawOrder.customerEmail,
+      },
+      items: orderItems,
+    };
   }
 
   async findMany({ storeId }: FindOrdersRepository.Input): Promise<Order[]> {
@@ -124,9 +140,9 @@ export class OrderRepository
             PED.data_criacao AS createdAt,
             PED.data_atualizacao AS updatedAt,
             PED.cod_loja AS storeId,
-            CLI.cli_cod AS 'customer.id',
-            CLI.cli_nome AS 'customer.name',
-            CLI.cli_email AS 'customer.email'
+            CLI.cli_cod AS 'customerId',
+            CLI.cli_nome AS 'customerName',
+            CLI.cli_email AS 'customerEmail'
         FROM PEDIDO PED
         LEFT JOIN CLIENTE CLI ON PED.cod_cliente = CLI.cli_cod
         LEFT JOIN ITEM_PEDIDO IP ON PED.ped_cod = IP.cod_pedido
@@ -149,9 +165,9 @@ export class OrderRepository
       updatedAt: rawOrder.updatedAt,
       storeId: rawOrder.storeId,
       customer: {
-        id: rawOrder["customer.id"],
-        name: rawOrder["customer.name"],
-        email: rawOrder["customer.email"],
+        id: rawOrder.customerId,
+        name: rawOrder.customerName,
+        email: rawOrder.customerEmail,
       },
     }));
 
@@ -161,12 +177,12 @@ export class OrderRepository
   async pay({
     customerEmail,
     customerName,
-    id,
+    id: orderId,
     paymentDate,
     paymentId,
     shippingAddress,
     storeId,
-  }: PayOrderRepository.Input): Promise<OrderWithItems> {
+  }: PayOrderRepository.Input): Promise<void> {
     let connection: PoolConnection | undefined;
 
     try {
@@ -193,25 +209,29 @@ export class OrderRepository
         `
         UPDATE PEDIDO
         SET
-          ped_status = 'PAID',
+          ped_status = 'PAGO',
           ped_endereco_entrega = ?,
           ped_cod_transac = ?,
           ped_data_pagamento = ?,
           cod_cliente = ?
         WHERE ped_cod = ? AND cod_loja = ?
       `,
-        [shippingAddress, paymentId, paymentDate, customerId, id, storeId],
+        [shippingAddress, paymentId, paymentDate, customerId, orderId, storeId],
+      );
+
+      await connection.query(
+        `      
+          UPDATE PRODUTO P
+          JOIN ITEM_PEDIDO IP ON P.produto_cod=IP.cod_produto
+          SET P.produto_quantidade_stock=P.produto_quantidade_stock-IP.item_quantidade
+          WHERE produto_cod=IP.cod_produto AND cod_pedido=?;
+      `,
+        [orderId],
       );
 
       await connection.commit();
-      const updatedOrder = await this.findOne({ id, storeId });
-      if (updatedOrder === null) {
-        throw new Error("Failed to update the order or order not found.");
-      }
-      return updatedOrder;
     } catch (error) {
       if (connection) await connection.rollback();
-
       throw error;
     } finally {
       if (connection) connection.release();

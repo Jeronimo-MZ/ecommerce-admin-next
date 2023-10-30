@@ -1,14 +1,15 @@
 "use client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { AlertCircleIcon } from "lucide-react";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
+import { useForm } from "react-hook-form";
+import { toast } from "react-hot-toast";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+
 import { InputGroup } from "../../../../components/ui/input-group";
-import { signIn } from "next-auth/react";
-import { toast } from "react-hot-toast";
-import { AlertCircleIcon } from "lucide-react";
 
 const SignInSchema = z.object({
   email: z.string().nonempty("Campo Obrigatório").email("Email inválido"),

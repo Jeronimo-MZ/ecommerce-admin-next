@@ -1,7 +1,8 @@
+import { compare } from "bcrypt";
 import NextAuth, { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+
 import { UserRepository } from "../../../../../server/repositories/user-repository";
-import { compare } from "bcrypt";
 
 export const authOptions: AuthOptions = {
   pages: {
