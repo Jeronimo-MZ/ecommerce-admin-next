@@ -2,6 +2,7 @@ import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { PoolConnection } from "mysql2/promise";
 
 import {
+  CancelOrderRepository,
   CreateOrderRepository,
   DeleteOrderRepository,
   FindOrderRepository,
@@ -17,7 +18,8 @@ export class OrderRepository
     FindOrderRepository,
     FindOrdersRepository,
     PayOrderRepository,
-    DeleteOrderRepository
+    DeleteOrderRepository,
+    CancelOrderRepository
 {
   async create({ items, storeId }: CreateOrderRepository.Input): Promise<Order> {
     let connection: PoolConnection | undefined;
@@ -236,6 +238,17 @@ export class OrderRepository
     } finally {
       if (connection) connection.release();
     }
+  }
+
+  async cancel({ id, storeId }: CancelOrderRepository.Input): Promise<void> {
+    await db.query(
+      `
+      UPDATE PEDIDO
+      SET ped_status = 'CANCELADO'
+      WHERE ped_cod = ? AND cod_loja = ?;
+    `,
+      [id, storeId],
+    );
   }
 
   async delete({ id, storeId }: DeleteOrderRepository.Input): Promise<void> {

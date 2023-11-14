@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { z } from "zod";
@@ -99,6 +100,7 @@ export async function POST(req: Request, { params }: POSTParameters) {
       billing_address_collection: "required",
       success_url: `${store.url}/cart?success=1`,
       cancel_url: `${store.url}/cart?canceled=1`,
+      expires_at: dayjs(new Date()).add(31, "minutes").unix(),
       metadata: {
         orderId: order.id,
         storeId: store.id,

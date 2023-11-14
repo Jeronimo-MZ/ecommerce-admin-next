@@ -12,7 +12,6 @@ export async function POST(req: Request) {
   const signature = headers().get("Stripe-Signature") as string;
 
   let event: Stripe.Event;
-  console.log("Here:", { body, signature });
 
   try {
     event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!);
@@ -52,6 +51,18 @@ export async function POST(req: Request) {
       paymentDate: new Date(),
       paymentId, // using session id for now
       shippingAddress,
+      storeId: store.id,
+    });
+  } else if (event.type === "checkout.session.expired") {
+    const session = event.data.object as Stripe.Checkout.Session;
+    const orderRepository = new OrderRepository();
+    const storeRepository = new StoreRepository();
+    const store = await storeRepository.findOne({ id: Number(session.metadata!.storeId) });
+    if (!store) {
+      return new NextResponse(`Webhook Error: cant locate store with id ${session.metadata?.storeId}`, { status: 400 });
+    }
+    await orderRepository.cancel({
+      id: Number(session.metadata!.orderId),
       storeId: store.id,
     });
   }

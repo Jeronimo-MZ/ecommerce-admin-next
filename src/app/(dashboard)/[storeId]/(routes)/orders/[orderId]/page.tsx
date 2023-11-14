@@ -2,9 +2,7 @@ import dayjs from "dayjs";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-import { Button } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
-import { Select } from "@/components/ui/select";
 import { formatMoney } from "@/utils/format-money";
 
 import { OrderRepository } from "../../../../../../../server/repositories/order-repository";
@@ -31,13 +29,13 @@ const Order = async ({ params }: OrderPageProps) => {
       <div className="flex items-center justify-between p-4">
         <Heading title={`Pedido #${order.id}`} description="Veja os detalhes do Pedido" />
       </div>
-      <section className="grid grid-cols-4 px-4">
-        <div className="col-span-1">
+      <section className="grid px-4">
+        <div>
           <p>
             <span className="font-medium">Id:</span> {order.id}
           </p>
           <p className="my-1">
-            <span className="font-medium">Date de Pedido: </span>
+            <span className="font-medium">Data de Pedido: </span>
             {order?.createdAt ? dayjs(order.createdAt).format("DD/MM/YYYY") : "Ainda não especificado"}
           </p>
           <p className="my-1">
@@ -65,7 +63,7 @@ const Order = async ({ params }: OrderPageProps) => {
             {order.status}
           </p>
         </div>
-        <div className="border px-4 pb-2 my-4 rounded col-span-2">
+        <div className="border px-4 pb-2 my-4 rounded ">
           <div className="grid grid-cols-4 mt-4 mb-2 border-b pb-2">
             <p className="col-span-2 font-medium">Nome do produto</p>
             <p className="col-span-1 font-medium">Quantidade</p>
