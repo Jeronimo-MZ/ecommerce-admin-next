@@ -129,9 +129,8 @@ export class OrderRepository
     };
   }
 
-  async findMany({ storeId }: FindOrdersRepository.Input): Promise<Order[]> {
-    const [orderRows] = await db.query<RowDataPacket[]>(
-      `
+  async findMany({ storeId, customerId }: FindOrdersRepository.Input): Promise<Order[]> {
+    let query = `
         SELECT
             PED.ped_cod AS id,
             PED.ped_status AS status,
@@ -148,11 +147,22 @@ export class OrderRepository
         FROM PEDIDO PED
         LEFT JOIN CLIENTE CLI ON PED.cod_cliente = CLI.cli_cod
         LEFT JOIN ITEM_PEDIDO IP ON PED.ped_cod = IP.cod_pedido
-        WHERE PED.cod_loja = ?
+        WHERE PED.cod_loja = ? 
+
+    `;
+    const queryParams = [storeId];
+    if (customerId) {
+      query += " AND PED.cod_cliente=? ";
+      queryParams.push(customerId);
+    }
+
+    const [orderRows] = await db.query<RowDataPacket[]>(
+      `
+        ${query}
         GROUP BY PED.ped_cod
-        ORDER BY PED.data_criacao DESC
+        ORDER BY PED.data_criacao DESC;
     `,
-      [storeId],
+      queryParams,
     );
 
     // Map the raw order data to the Order model

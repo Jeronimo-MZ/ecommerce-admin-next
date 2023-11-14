@@ -24,6 +24,10 @@ export const MainNav = ({ className, ...props }: HTMLAttributes<HTMLElement>) =>
       label: "Categorias",
     },
     {
+      href: `/${params.storeId}/customers`,
+      label: "Clientes",
+    },
+    {
       href: `/${params.storeId}/colors`,
       label: "Cores",
     },

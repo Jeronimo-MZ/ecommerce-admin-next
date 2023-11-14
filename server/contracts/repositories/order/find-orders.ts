@@ -5,5 +5,5 @@ export interface FindOrdersRepository {
 }
 
 export namespace FindOrdersRepository {
-  export type Input = { storeId: number };
+  export type Input = { storeId: number; customerId?: number };
 }
