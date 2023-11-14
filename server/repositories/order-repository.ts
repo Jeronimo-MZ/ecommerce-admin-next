@@ -94,7 +94,8 @@ export class OrderRepository
             IP.cod_produto AS productId,
             PRO.produto_nome AS productName,
             IP.item_preco_venda AS price,
-            IP.item_quantidade AS quantity
+            IP.item_quantidade AS quantity,
+            (IP.item_preco_venda * IP.item_quantidade) AS subtotal
           FROM ITEM_PEDIDO IP
           LEFT JOIN PRODUTO PRO ON IP.cod_produto = PRO.produto_cod
           WHERE IP.cod_pedido = ?
@@ -108,6 +109,7 @@ export class OrderRepository
       productName: rawOrderItem.productName,
       price: rawOrderItem.price,
       quantity: rawOrderItem.quantity,
+      subtotal: rawOrderItem.subtotal,
     }));
 
     return {

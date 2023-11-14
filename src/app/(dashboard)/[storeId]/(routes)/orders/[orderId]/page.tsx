@@ -64,13 +64,14 @@ const Order = async ({ params }: OrderPageProps) => {
           </p>
         </div>
         <div className="border px-4 pb-2 my-4 rounded ">
-          <div className="grid grid-cols-4 mt-4 mb-2 border-b pb-2">
+          <div className="grid grid-cols-5 mt-4 mb-2 border-b pb-2 gap-1">
             <p className="col-span-2 font-medium">Nome do produto</p>
             <p className="col-span-1 font-medium">Quantidade</p>
             <p className="col-span-1 font-medium">Preço unitário</p>
+            <p className="col-span-1 font-medium">SubTotal</p>
           </div>
           {order.items.map(item => (
-            <div key={item.productId} className="grid grid-cols-4">
+            <div key={item.productId} className="grid grid-cols-5 gap-1">
               <p className="col-span-2 my-2 text-sm">
                 <Link target="_blank" href={`/${storeId}/products/${item.productId}`}>
                   {item.productName}
@@ -78,10 +79,12 @@ const Order = async ({ params }: OrderPageProps) => {
               </p>
               <p className="col-span-1 my-2 text-sm">{item.quantity}</p>
               <p className="col-span-1 my-2 text-sm">{formatMoney(item.price / 100, store.currency)}</p>
+              <p className="col-span-1 my-2 text-sm">{formatMoney(item.subtotal / 100, store.currency)}</p>
             </div>
           ))}
-          <div className="grid grid-cols-4 mt-4 mb-2 border-t">
-            <p className="col-span-3 font-medium">Total </p>
+          <div className="grid grid-cols-5 mt-4 mb-2 border-t gap-1">
+            <p className="col-span-3"></p>
+            <p className="col-span-1 font-medium mr-4">Total </p>
             <p className="col-span-1 font-medium">{formatMoney(order.totalInCents / 100, store.currency)}</p>
           </div>
         </div>

@@ -21,6 +21,7 @@ export type OrderItem = {
   productName: string;
   price: number;
   quantity: number;
+  subtotal: number;
 };
 
 export type OrderWithItems = Order & { items: OrderItem[] };
