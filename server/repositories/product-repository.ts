@@ -7,6 +7,8 @@ import {
   FindProductsRepository,
   UpdateProductRepository,
 } from "../contracts/repositories/product";
+import { CheckProductRepository } from "../contracts/repositories/product/check-product";
+import { CheckProductHasOrdersRepository } from "../contracts/repositories/product/check-product-has-order";
 import { DeleteProductRepository } from "../contracts/repositories/product/delete-product";
 import { db } from "../lib/mysql";
 import { Product } from "../models/product";
@@ -17,7 +19,9 @@ export class ProductRepository
     FindProductRepository,
     FindProductsRepository,
     DeleteProductRepository,
-    UpdateProductRepository
+    UpdateProductRepository,
+    CheckProductRepository,
+    CheckProductHasOrdersRepository
 {
   async create({
     name,
@@ -42,8 +46,11 @@ export class ProductRepository
         [name, price, quantityInStock, storeId, colorId, sizeId, categoryId],
       );
       const productId = insertResult.insertId;
-      const imageInsertValues = images.map(imageUrl => [productId, imageUrl]);
-      await connection.execute("INSERT INTO FOTO_PRODUTO(ft_url_foto, cod_produto) VALUES ?;", [imageInsertValues]);
+      const imageInsertValues = images.map(imageUrl => [imageUrl, productId]);
+      const insertImagesQuery = connection.format("INSERT INTO FOTO_PRODUTO(ft_url_foto, cod_produto) VALUES ?;", [
+        imageInsertValues,
+      ]);
+      await connection.execute(insertImagesQuery);
       await connection.commit();
       return this.findOne({ id: productId, storeId }) as Promise<Product>;
     } catch (error) {
@@ -180,6 +187,30 @@ export class ProductRepository
     }));
   }
 
+  async checkBy({ storeId, categoryId, colorId, sizeId }: CheckProductRepository.Input): Promise<boolean> {
+    let query = `
+      SELECT COUNT(*) as count
+      FROM PRODUTO
+      WHERE cod_loja=?`;
+
+    const queryParams: number[] = [storeId];
+
+    if (categoryId) {
+      query += " AND cod_categoria=?;";
+      queryParams.push(categoryId);
+    } else if (colorId) {
+      query += " AND cod_cor=?;";
+      queryParams.push(colorId);
+    } else if (sizeId) {
+      query += " AND cod_tamanho=?;";
+      queryParams.push(sizeId);
+    }
+
+    const [rows] = await db.query<RowDataPacket[]>(query, queryParams);
+    const count = rows[0].count;
+    return count > 0;
+  }
+
   async findManyByIds(ids: number[], storeId: number): Promise<Omit<Product, "images">[]> {
     let query = `
       SELECT 
@@ -269,6 +300,20 @@ export class ProductRepository
     } finally {
       if (connection) connection.release();
     }
+  }
+
+  async checkHasOrders({ productId, storeId }: CheckProductHasOrdersRepository.Input): Promise<boolean> {
+    const [rows] = await db.query<RowDataPacket[]>(
+      `
+        SELECT COUNT(*) as count
+        FROM ITEM_PEDIDO IP
+        JOIN PEDIDO P ON IP.cod_pedido = P.ped_cod 
+        WHERE IP.cod_produto=? AND P.cod_loja=?;
+      `,
+      [productId, storeId],
+    );
+    const count = rows[0].count;
+    return count > 0;
   }
 }
 

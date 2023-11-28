@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
+import { ProductRepository } from "../../../../../../server/repositories/product-repository";
 import { SizeRepository } from "../../../../../../server/repositories/size-repository";
 import { StoreRepository } from "../../../../../../server/repositories/store-repository";
 
@@ -57,6 +58,11 @@ export async function DELETE(req: Request, { params }: Params) {
 
     const size = await sizeRepository.findOne({ id: Number(params.sizeId), storeId: store.id });
     if (!size) return new NextResponse("tamanho não encontrado", { status: 400 });
+
+    const productRepository = new ProductRepository();
+    if (await productRepository.checkBy({ sizeId: size.id, storeId: store.id })) {
+      return new NextResponse("O Tamanho não pode ser deletado pois tem produtos associados!", { status: 400 });
+    }
 
     await sizeRepository.delete({ id: size.id });
     return new NextResponse(null, { status: 204 });

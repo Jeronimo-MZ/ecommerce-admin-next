@@ -5,6 +5,7 @@ import {
   FindCategoriesRepository,
   FindCategoryRepository,
 } from "../contracts/repositories/category";
+import { CheckCategoryRepository } from "../contracts/repositories/category/check-category";
 import { DeleteCategoryRepository } from "../contracts/repositories/category/delete-category";
 import { UpdateCategoryRepository } from "../contracts/repositories/category/update-category";
 import { db } from "../lib/mysql";
@@ -16,7 +17,8 @@ export class CategoryRepository
     FindCategoryRepository,
     FindCategoriesRepository,
     DeleteCategoryRepository,
-    UpdateCategoryRepository
+    UpdateCategoryRepository,
+    CheckCategoryRepository
 {
   async create({ billboardId, name, storeId }: CreateCategoryRepository.Input): Promise<Category> {
     const [insertResult] = await db.execute<ResultSetHeader>(
@@ -77,6 +79,19 @@ export class CategoryRepository
     return rows.map(row => this.mapRowToCategory(row as RawCategory));
   }
 
+  async checkBy({ billboardId, storeId }: CheckCategoryRepository.Input): Promise<boolean> {
+    const [rows] = await db.query<RowDataPacket[]>(
+      `
+        SELECT COUNT(*) as count
+        FROM CATEGORIA
+        WHERE cod_capa=? AND cod_loja=?;
+      `,
+      [billboardId, storeId],
+    );
+
+    const count = rows[0].count;
+    return count > 0;
+  }
   async delete({ id }: DeleteCategoryRepository.Input): Promise<void> {
     await db.execute("DELETE FROM CATEGORIA WHERE cat_cod=?", [id]);
   }

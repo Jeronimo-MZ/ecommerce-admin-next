@@ -6,6 +6,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 import { BillboardRepository } from "../../../../../../server/repositories/billboard-repository";
 import { CategoryRepository } from "../../../../../../server/repositories/category-repository";
+import { ProductRepository } from "../../../../../../server/repositories/product-repository";
 import { StoreRepository } from "../../../../../../server/repositories/store-repository";
 
 const updateCategoryBodySchema = z.object({
@@ -71,6 +72,11 @@ export async function DELETE(req: Request, { params }: Params) {
 
     const category = await categoryRepository.findOne({ id: Number(params.categoryId), storeId: store.id });
     if (!category) return new NextResponse("Categoria não encontrada", { status: 400 });
+
+    const productRepository = new ProductRepository();
+    if (await productRepository.checkBy({ categoryId: category.id, storeId: store.id })) {
+      return new NextResponse("A Categoria não pode ser deletada pois tem produtos associados!", { status: 400 });
+    }
 
     await categoryRepository.delete({ id: category.id });
     return new NextResponse(null, { status: 204 });

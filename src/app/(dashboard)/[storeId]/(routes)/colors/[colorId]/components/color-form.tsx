@@ -49,9 +49,11 @@ export const ColorForm = ({ initialData }: ColorFormProps) => {
     try {
       if (initialData) {
         await api.patch(`/api/${params.storeId}/colors/${params.colorId}`, data);
+        router.refresh();
       } else {
         await api.post(`/api/${params.storeId}/colors`, data);
         router.push(`/${params.storeId}/colors`);
+        router.refresh();
       }
       router.refresh();
       toast.success(toastMessage);

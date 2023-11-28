@@ -48,6 +48,7 @@ export async function POST(req: Request, { params }: { params: { storeId: string
     return NextResponse.json(createdProduct, { status: 201 });
   } catch (error) {
     console.error(`[POST] /:storeId/products -> ${error}`);
+    console.error(error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

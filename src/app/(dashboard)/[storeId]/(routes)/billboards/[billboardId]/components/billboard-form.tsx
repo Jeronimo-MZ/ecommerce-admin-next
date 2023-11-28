@@ -56,6 +56,7 @@ export const BillboardForm = ({ initialData }: BillboardFormProps) => {
       } else {
         await api.post(`/api/${params.storeId}/billboards`, { imageUrl, label });
         router.push(`/${params.storeId}/billboards`);
+        router.refresh();
       }
       toast.success(toastMessage);
     } catch (error) {

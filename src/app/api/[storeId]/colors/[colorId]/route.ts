@@ -5,6 +5,7 @@ import { z } from "zod";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 import { ColorRepository } from "../../../../../../server/repositories/color-repository";
+import { ProductRepository } from "../../../../../../server/repositories/product-repository";
 import { StoreRepository } from "../../../../../../server/repositories/store-repository";
 
 const updateCategoryBodySchema = z.object({
@@ -57,6 +58,11 @@ export async function DELETE(req: Request, { params }: Params) {
 
     const color = await colorRepository.findOne({ id: Number(params.colorId), storeId: store.id });
     if (!color) return new NextResponse("Cor não encontrada", { status: 400 });
+
+    const productRepository = new ProductRepository();
+    if (await productRepository.checkBy({ colorId: color.id, storeId: store.id })) {
+      return new NextResponse("A Cor não pode ser deletada pois tem produtos associados!", { status: 400 });
+    }
 
     await colorRepository.delete({ id: color.id });
     return new NextResponse(null, { status: 204 });

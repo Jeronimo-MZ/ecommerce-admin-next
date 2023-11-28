@@ -53,6 +53,7 @@ export const SizeForm = ({ initialData }: SizeFormProps) => {
       } else {
         await api.post(`/api/${params.storeId}/sizes`, data);
         router.push(`/${params.storeId}/sizes`);
+        router.refresh();
       }
       toast.success(toastMessage);
     } catch (error) {

@@ -56,6 +56,7 @@ export const CategoryForm = ({ initialData, billboards }: CategoryFormProps) => 
       } else {
         await api.post(`/api/${params.storeId}/categories`, data);
         router.push(`/${params.storeId}/categories`);
+        router.refresh();
       }
       toast.success(toastMessage);
     } catch (error) {

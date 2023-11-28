@@ -5,6 +5,7 @@ import { z } from "zod";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 import { BillboardRepository } from "../../../../../../server/repositories/billboard-repository";
+import { CategoryRepository } from "../../../../../../server/repositories/category-repository";
 import { StoreRepository } from "../../../../../../server/repositories/store-repository";
 
 const updateBillboardBodySchema = z.object({
@@ -56,12 +57,17 @@ export async function DELETE(req: Request, { params }: { params: { storeId: stri
     const store = await storeRepository.findOne({ id: Number(params.storeId), userId: session.user.id });
     if (!store) return new NextResponse("Forbidden", { status: 403 });
     const billboardRepository = new BillboardRepository();
+    const categoryRepository = new CategoryRepository();
 
     const billboard = await billboardRepository.findOne({
       id: Number(params.billboardId),
       storeId: Number(params.storeId),
     });
     if (!billboard || billboard.storeId !== store.id) return new NextResponse("Forbidden", { status: 403 });
+
+    if (await categoryRepository.checkBy({ billboardId: billboard.id, storeId: store.id })) {
+      return new NextResponse("A capa não pode ser deletada pois tem categorias associadas!", { status: 400 });
+    }
 
     await billboardRepository.delete({ id: billboard.id });
     return new NextResponse(null, { status: 204 });
@@ -78,7 +84,7 @@ export async function GET(req: Request, { params }: { params: { billboardId: str
       id: Number(params.billboardId),
       storeId: Number(params.storeId),
     });
-    if (!billboard) return new NextResponse("Capa não encontraada", { status: 404 });
+    if (!billboard) return new NextResponse("Capa não encontrada", { status: 404 });
 
     return NextResponse.json(billboard);
   } catch (error) {

@@ -74,6 +74,7 @@ export const ProductForm = ({ initialData, categories, colors, sizes }: ProductF
       } else {
         await api.post(`/api/${params.storeId}/products`, { ...data, priceInCents });
         router.push(`/${params.storeId}/products`);
+        router.refresh();
       }
       toast.success(toastMessage);
     } catch (error) {

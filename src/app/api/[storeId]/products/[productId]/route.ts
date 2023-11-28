@@ -74,6 +74,10 @@ export async function DELETE(req: Request, { params }: Params) {
     const product = await productRepository.findOne({ id: Number(params.productId), storeId: store.id });
     if (!product) return new NextResponse("Produto não encontrado", { status: 400 });
 
+    if (await productRepository.checkHasOrders({ productId: product.id, storeId: store.id })) {
+      return new NextResponse("O Produto não pode ser deletado pois já tem pedidos associados!", { status: 400 });
+    }
+
     await productRepository.delete({ id: product.id });
     return new NextResponse(null, { status: 204 });
   } catch (error) {
